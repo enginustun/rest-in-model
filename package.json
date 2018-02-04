@@ -5,7 +5,8 @@
   "main": "dist/rest-art.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack -d --progress"
+    "build": "webpack -d --progress",
+    "build:prod": "webpack -p --progress"
   },
   "repository": {
     "type": "git",
