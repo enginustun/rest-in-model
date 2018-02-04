@@ -4,13 +4,12 @@ import helper from '../common/helper';
 
 class RestArtClient {
   constructor(_settings) {
-    this.settings = {
-      endpoint: settings.endpoint,
-      currentApiPath: settings.defaultApiPath,
-    };
+    this.settings = {};
     if (helper.isObject(_settings)) {
-      this.settings.endpoint = _settings.endpoint || settings.endpoint;
-      this.settings.currentApiPath = _settings.currentApiPath || settings.defaultApiPath;
+      this.settings.endpoint =
+        settings.endpoints[_settings.endpointName || settings.defaultEndpoint];
+      this.settings.apiPath =
+        settings.apiPaths[_settings.apiPathName || settings.defaultApiPath];
     }
   }
 
@@ -29,8 +28,7 @@ class RestArtClient {
     const request = new XHR();
     RestArtClient.setDefaultHeaders(request);
     request.method = 'GET';
-    request.url = this.settings.endpoint +
-      settings.apiPaths[this.settings.currentApiPath || settings.defaultApiPath] + service;
+    request.url = this.settings.endpoint + this.settings.apiPath + service;
     return request;
   }
 
@@ -38,8 +36,7 @@ class RestArtClient {
     const request = new XHR();
     RestArtClient.setDefaultHeaders(request);
     request.method = 'POST';
-    request.url = this.settings.endpoint +
-      settings.apiPaths[this.settings.currentApiPath || settings.defaultApiPath] + service;
+    request.url = this.settings.endpoint + this.settings.apiPath + service;
     request.data = data;
     return request;
   }
@@ -48,8 +45,7 @@ class RestArtClient {
     const request = new XHR();
     RestArtClient.setDefaultHeaders(request);
     request.method = 'PUT';
-    request.url = this.settings.endpoint +
-      settings.apiPaths[this.settings.currentApiPath || settings.defaultApiPath] + service;
+    request.url = this.settings.endpoint + this.settings.apiPath + service;
     request.data = data;
     return request;
   }
@@ -58,8 +54,7 @@ class RestArtClient {
     const request = new XHR();
     RestArtClient.setDefaultHeaders(request);
     request.method = 'PATCH';
-    request.url = this.settings.endpoint +
-      settings.apiPaths[this.settings.currentApiPath || settings.defaultApiPath] + service;
+    request.url = this.settings.endpoint + this.settings.apiPath + service;
     request.data = data;
     return request;
   }
@@ -68,8 +63,7 @@ class RestArtClient {
     const request = new XHR();
     RestArtClient.setDefaultHeaders(request);
     request.method = 'DELETE';
-    request.url = this.settings.endpoint +
-      settings.apiPaths[this.settings.currentApiPath || settings.defaultApiPath] + service;
+    request.url = this.settings.endpoint + this.settings.apiPath + service;
     return request;
   }
 }

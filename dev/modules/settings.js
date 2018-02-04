@@ -1,5 +1,6 @@
-module.exports = {
-  endpoint: 'http://localhost:8080/',
+const settings = {
+  endpoints: {},
+  defaultEndpoint: '',
   apiPaths: {
     default: 'serve/',
   },
@@ -9,3 +10,4 @@ module.exports = {
     contentType: 'application/json',
   },
 };
+module.exports = settings;
