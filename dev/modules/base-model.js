@@ -80,12 +80,21 @@ class RestArtBaseModel {
     const opt = options || {};
     let path = 'default';
     path = opt.path || path;
+    opt.pathData = opt.pathData || {};
     const id = opt.id || this[this.idField];
     const consumer = this.consumer;
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestArtClient) {
         if (id) {
-          consumer.get(helper.pathJoin(this.paths[path], id)).exec()
+          // if there is no pathData.id it should be set
+          opt.pathData.id = opt.pathData.id || id;
+          let resultPath = this.paths[path];
+          if (path === 'default') {
+            resultPath = helper.pathJoin(this.paths[path], '{id}');
+          }
+          // replace url parameters
+          resultPath = helper.replaceUrlParamsWithValues(resultPath, opt.pathData);
+          consumer.get(resultPath).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         } else {
@@ -99,10 +108,12 @@ class RestArtBaseModel {
     const opt = options || {};
     let path = 'default';
     path = opt.path || path;
+    opt.pathData = opt.pathData || {};
     const consumer = this.consumer;
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestArtClient) {
-        consumer.get(this.paths[path]).exec()
+        const resultPath = helper.replaceUrlParamsWithValues(this.paths[path], opt.pathData);
+        consumer.get(resultPath).exec()
           .then((response) => { resolve(response); })
           .catch((response) => { reject(response); });
       }
