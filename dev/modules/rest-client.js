@@ -28,7 +28,7 @@ class RestArtClient {
     const request = new XHR();
     RestArtClient.setDefaultHeaders(request);
     request.method = 'GET';
-    request.url = this.settings.endpoint + this.settings.apiPath + service;
+    request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
     return request;
   }
 
@@ -36,7 +36,7 @@ class RestArtClient {
     const request = new XHR();
     RestArtClient.setDefaultHeaders(request);
     request.method = 'POST';
-    request.url = this.settings.endpoint + this.settings.apiPath + service;
+    request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
     request.data = data;
     return request;
   }
@@ -45,7 +45,7 @@ class RestArtClient {
     const request = new XHR();
     RestArtClient.setDefaultHeaders(request);
     request.method = 'PUT';
-    request.url = this.settings.endpoint + this.settings.apiPath + service;
+    request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
     request.data = data;
     return request;
   }
@@ -54,7 +54,7 @@ class RestArtClient {
     const request = new XHR();
     RestArtClient.setDefaultHeaders(request);
     request.method = 'PATCH';
-    request.url = this.settings.endpoint + this.settings.apiPath + service;
+    request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
     request.data = data;
     return request;
   }
@@ -63,7 +63,7 @@ class RestArtClient {
     const request = new XHR();
     RestArtClient.setDefaultHeaders(request);
     request.method = 'DELETE';
-    request.url = this.settings.endpoint + this.settings.apiPath + service;
+    request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
     return request;
   }
 }
