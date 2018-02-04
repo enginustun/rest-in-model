@@ -1,6 +1,5 @@
 import RestArtClient from './rest-client';
 import helper from '../common/helper';
-import settings from './settings';
 
 class RestArtBaseModel {
   constructor(options) {
@@ -29,7 +28,12 @@ class RestArtBaseModel {
     }
 
     // define REST consumer
-    Object.defineProperty(this, 'consumer', { value: new RestArtClient({ endpoint: options.endpoint }) });
+    Object.defineProperty(this, 'consumer', {
+      value: new RestArtClient({
+        endpointName: options.endpointName,
+        apiPathName: options.apiPathName,
+      }),
+    });
   }
 
   save(options) {
@@ -52,7 +56,7 @@ class RestArtBaseModel {
             const key = opt.patch[i];
             patchData[key] = this[key];
           }
-          consumer.patch(this.paths[path] + id, patchData).exec()
+          consumer.patch(helper.pathJoin(this.paths[path], id), patchData).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         } else {
@@ -64,16 +68,65 @@ class RestArtBaseModel {
             putData[key] = this[key];
           }
           delete putData[this.idField];
-          consumer.put(this.paths[path] + id, putData).exec()
+          consumer.put(helper.pathJoin(this.paths[path], id), putData).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         }
       }
     });
   }
-  // get() { }
-  // all() { }
-  // delete() { }
+
+  get(options) {
+    const opt = options || {};
+    let path = 'default';
+    path = opt.path || path;
+    const id = opt.id || this[this.idField];
+    const consumer = this.consumer;
+    return new Promise((resolve, reject) => {
+      if (consumer instanceof RestArtClient) {
+        if (id) {
+          consumer.get(helper.pathJoin(this.paths[path], id)).exec()
+            .then((response) => { resolve(response); })
+            .catch((response) => { reject(response); });
+        } else {
+          reject(new Error('id parameter must be provided in options or object\'s id field must be set before calling this method.'));
+        }
+      }
+    });
+  }
+
+  all(options) {
+    const opt = options || {};
+    let path = 'default';
+    path = opt.path || path;
+    const consumer = this.consumer;
+    return new Promise((resolve, reject) => {
+      if (consumer instanceof RestArtClient) {
+        consumer.get(this.paths[path]).exec()
+          .then((response) => { resolve(response); })
+          .catch((response) => { reject(response); });
+      }
+    });
+  }
+
+  delete(options) {
+    const opt = options || {};
+    let path = 'default';
+    path = opt.path || path;
+    const id = opt.id || this[this.idField];
+    const consumer = this.consumer;
+    return new Promise((resolve, reject) => {
+      if (consumer instanceof RestArtClient) {
+        if (id) {
+          consumer.delete(helper.pathJoin(this.paths[path], id)).exec()
+            .then((response) => { resolve(response); })
+            .catch((response) => { reject(response); });
+        } else {
+          reject(new Error('id parameter must be provided in options or object\'s id field must be set before calling this method.'));
+        }
+      }
+    });
+  }
 }
 
 export default RestArtBaseModel;
