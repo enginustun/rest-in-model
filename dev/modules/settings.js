@@ -1,10 +1,11 @@
 module.exports = {
-  endpoint: 'http://localhost:3000',
+  endpoint: 'http://localhost:8080/',
   apiPaths: {
     default: 'serve/',
   },
+  defaultApiPath: 'default',
   headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
+    accept: 'application/json',
+    contentType: 'application/json',
   },
 };
