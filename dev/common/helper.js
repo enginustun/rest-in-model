@@ -20,4 +20,14 @@ module.exports = {
     }
     return resultPath;
   },
+
+  replaceUrlParamsWithValues: (url, paramValues) => {
+    const paramKeys = Object.keys(paramValues);
+    let newurl = url;
+    for (let i = 0; i < paramKeys.length; i += 1) {
+      const paramKey = paramKeys[i];
+      newurl = newurl.replace(`{${paramKey}}`, paramValues[paramKey]);
+    }
+    return newurl;
+  },
 };
