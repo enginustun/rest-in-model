@@ -5,7 +5,8 @@ import helper from '../common/helper';
 class RestArtClient {
   constructor(_settings) {
     this.settings = {
-      currentApiPath: 'default',
+      endpoint: settings.endpoint,
+      currentApiPath: settings.defaultApiPath,
     };
     if (helper.isObject(_settings)) {
       this.settings.endpoint = _settings.endpoint || settings.endpoint;

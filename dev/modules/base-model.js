@@ -29,7 +29,7 @@ class RestArtBaseModel {
     }
 
     // define REST consumer
-    Object.defineProperty(this, 'consumer', { value: new RestArtClient() });
+    Object.defineProperty(this, 'consumer', { value: new RestArtClient({ endpoint: options.endpoint }) });
   }
 
   save(options) {
@@ -42,7 +42,6 @@ class RestArtBaseModel {
       if (consumer instanceof RestArtClient) {
         // if there is no id, then post and save it
         if (!id) {
-          console.log('here, there is no id');
           consumer.post(this.paths[path], this).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
