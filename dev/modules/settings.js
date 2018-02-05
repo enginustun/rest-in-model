@@ -2,9 +2,9 @@ const settings = {
   endpoints: {},
   defaultEndpoint: '',
   apiPaths: {
-    default: 'serve/',
+    default: '',
   },
-  defaultApiPath: 'default',
+  defaultApiPath: '',
   headers: {
     accept: 'application/json',
     contentType: 'application/json',
