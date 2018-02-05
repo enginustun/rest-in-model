@@ -20,12 +20,14 @@ class XHR {
         this.xhr.setRequestHeader(headerKeys[i], this.headers[headerKeys[i]]);
       }
       this.xhr.onreadystatechange = () => {
-        if (this.xhr.readyState !== 4 && this.xhr.status === 200) {
-          // we get the returned data
-          const data = JSON.parse(this.responseText);
-          resolve(data);
-        } else {
-          reject(new Error(this.xhr.statusText));
+        if (this.xhr.readyState === 4) {
+          if (this.xhr.status === 200) {
+            // we get the returned data
+            const data = JSON.parse(this.xhr.responseText);
+            resolve(data);
+          } else {
+            reject(new Error(this.xhr.statusText));
+          }
         }
       };
       this.xhr.send(JSON.stringify(this.data));
