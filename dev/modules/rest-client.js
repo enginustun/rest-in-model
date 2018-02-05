@@ -13,10 +13,6 @@ class RestArtClient {
     }
   }
 
-  static addApiPath(name, value) {
-    settings.apiPaths[name] = value;
-  }
-
   static setDefaultHeaders(request) {
     if (request instanceof XHR) {
       request.setHeader('Accept', settings.headers.accept);
