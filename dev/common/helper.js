@@ -18,7 +18,7 @@ module.exports = {
             pathItem = pathItem.substr(1, pathItemLength - 1);
           }
         }
-        resultPath += ((resultPath.length > 0 ? '/' : '') + pathItem);
+        resultPath += ((resultPath.length > 0 && pathItem ? '/' : '') + pathItem);
       }
     }
     return resultPath;
