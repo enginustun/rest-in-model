@@ -1,6 +1,9 @@
 import RestArtClient from './rest-client';
 import helper from '../common/helper';
 
+const restModelToObject = (restModel, type, isSelf) => { console.log(restModel, type); };
+const objectToRestModel = (model) => { console.log(model); return model; };
+
 class RestArtBaseModel {
   constructor(options) {
     if (!helper.isObject(options)) {
@@ -46,7 +49,7 @@ class RestArtBaseModel {
       if (consumer instanceof RestArtClient) {
         // if there is no id, then post and save it
         if (!id) {
-          consumer.post(this.paths[path], this).exec()
+          consumer.post(this.paths[path], objectToRestModel(this)).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         } else if (helper.isArray(opt.patch)) {
@@ -56,7 +59,7 @@ class RestArtBaseModel {
             const key = opt.patch[i];
             patchData[key] = this[key];
           }
-          consumer.patch(helper.pathJoin(this.paths[path], id), patchData).exec()
+          consumer.patch(helper.pathJoin(this.paths[path], id), objectToRestModel(patchData)).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         } else {
@@ -68,7 +71,7 @@ class RestArtBaseModel {
             putData[key] = this[key];
           }
           delete putData[this.idField];
-          consumer.put(helper.pathJoin(this.paths[path], id), putData).exec()
+          consumer.put(helper.pathJoin(this.paths[path], id), objectToRestModel(putData)).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         }
@@ -95,7 +98,11 @@ class RestArtBaseModel {
           // replace url parameters
           resultPath = helper.replaceUrlParamsWithValues(resultPath, opt.pathData);
           consumer.get(resultPath).exec()
-            .then((response) => { resolve(response); })
+            .then((response) => {
+              restModelToObject(opt.resultField && response[opt.resultField] ?
+                response[opt.resultField] : response, this, true);
+              resolve(response);
+            })
             .catch((response) => { reject(response); });
         } else {
           reject(new Error('id parameter must be provided in options or object\'s id field must be set before calling this method.'));
@@ -114,7 +121,22 @@ class RestArtBaseModel {
       if (consumer instanceof RestArtClient) {
         const resultPath = helper.replaceUrlParamsWithValues(this.paths[path], opt.pathData);
         consumer.get(resultPath).exec()
-          .then((response) => { resolve(response); })
+          .then((response) => {
+            if (helper.isArray(opt.resultList)) {
+              const list = opt.resultListField &&
+                helper.isArray(response[opt.resultListField]) ?
+                response[opt.resultListField] : response;
+              for (let i = 0; i < list.length; i += 1) {
+                const item = list[i];
+                opt.resultList.push(restModelToObject(
+                  item,
+                  (opt.resultListItemType instanceof RestArtBaseModel ?
+                    opt.resultListItemType : this.constructor),
+                ));
+              }
+            }
+            resolve(response);
+          })
           .catch((response) => { reject(response); });
       }
     });
