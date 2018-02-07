@@ -1,8 +1,31 @@
 import RestArtClient from './rest-client';
 import helper from '../common/helper';
 
-const restModelToObject = (restModel, type) => { /*console.log(restModel, type);*/ };
-const objectToRestModel = (model) => { /*console.log(model);*/ return model; };
+const restModelToObject = (restModel, Type) => {
+  const newObject = new Type();
+  const config = Type[`${Type.name}_config`];
+  if (helper.isObject(config.fields)) {
+    const fieldKeys = Object.keys(config.fields);
+    for (let i = 0; i < fieldKeys.length; i += 1) {
+      const fieldKey = fieldKeys[i];
+      newObject[fieldKey] = restModel[config.fields[fieldKey].map || fieldKey];
+    }
+  }
+  return newObject;
+};
+
+const objectToRestModel = (model) => {
+  const restModel = {};
+  const config = model.constructor[`${model.constructor.name}_config`];
+  if (helper.isObject(config.fields)) {
+    const fieldKeys = Object.keys(config.fields);
+    for (let i = 0; i < fieldKeys.length; i += 1) {
+      const fieldKey = fieldKeys[i];
+      restModel[config.fields[fieldKey].map || fieldKey] = model[fieldKey];
+    }
+  }
+  return restModel;
+};
 
 class RestArtBaseModel {
   constructor(options) {
@@ -37,7 +60,8 @@ class RestArtBaseModel {
 
   save(options) {
     const constructor = this.constructor;
-    const config = RestArtBaseModel[`${this.name}_config`];
+    const config = RestArtBaseModel[`${constructor.name}_config`];
+    const { fields } = config;
     const opt = options || {};
     const id = this[config.idField];
     const consumer = new RestArtClient({
@@ -52,33 +76,39 @@ class RestArtBaseModel {
         // if there is no id, then post and save it
         if (!id) {
           consumer.post(config.paths[path], objectToRestModel(this)).exec()
-            .then((response) => { resolve(response); })
+            .then((response) => {
+              this[config.idField] =
+                response[config.fields[config.idField].map || config.idField];
+              resolve(response);
+            })
             .catch((response) => { reject(response); });
         } else if (helper.isArray(opt.patch)) {
           // if there is 'patch' attribute in option, only patch these fields
           const patchData = {};
+          const convertedModel = objectToRestModel(this);
           for (let i = 0; i < opt.patch.length; i += 1) {
-            const key = opt.patch[i];
-            patchData[key] = this[key];
+            const key = fields[opt.patch[i]].map || opt.patch[i];
+            patchData[key] = convertedModel[key];
           }
           consumer.patch(
             helper.pathJoin(config.paths[path], id),
-            objectToRestModel(patchData),
+            patchData,
           ).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         } else {
           // otherwise put all fields
           const putData = {};
-          const fieldKeys = Object.keys(this);
+          const convertedModel = objectToRestModel(this);
+          const fieldKeys = Object.keys(convertedModel);
           for (let i = 0; i < fieldKeys.length; i += 1) {
             const key = fieldKeys[i];
-            putData[key] = this[key];
+            putData[key] = convertedModel[key];
           }
           delete putData[config.idField];
           consumer.put(
             helper.pathJoin(config.paths[path], id),
-            objectToRestModel(putData),
+            putData,
           ).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
@@ -88,16 +118,16 @@ class RestArtBaseModel {
   }
 
   static save(options) {
-    const constructor = this.constructor;
     const config = RestArtBaseModel[`${this.name}_config`];
     const opt = options || {};
+    const { fields } = config;
     const consumer = new RestArtClient({
       endpointName: opt.endpointName || config.endpointName,
       apiPathName: opt.apiPathName || config.apiPathName,
     });
     let path = 'default';
     path = opt.path || path;
-    if (!(opt.model instanceof constructor)) {
+    if (!(opt.model instanceof this)) {
       throw Error('model must be provided as option parameter');
     }
     const id = opt.model[config.idField];
@@ -107,18 +137,23 @@ class RestArtBaseModel {
         // if there is no id, then post and save it
         if (!id) {
           consumer.post(config.paths[path], objectToRestModel(opt.model)).exec()
-            .then((response) => { resolve(response); })
+            .then((response) => {
+              opt.model[config.idField] =
+                response[config.fields[config.idField].map || config.idField];
+              resolve(response);
+            })
             .catch((response) => { reject(response); });
         } else if (helper.isArray(opt.patch)) {
           // if there is 'patch' attribute in option, only patch these fields
           const patchData = {};
+          const convertedModel = objectToRestModel(opt.model);
           for (let i = 0; i < opt.patch.length; i += 1) {
-            const key = opt.patch[i];
-            patchData[key] = opt.model[key];
+            const key = fields[opt.patch[i]].map || opt.patch[i];
+            patchData[key] = convertedModel[key];
           }
           consumer.patch(
             helper.pathJoin(config.paths[path], id),
-            objectToRestModel(patchData),
+            patchData,
           ).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
@@ -133,7 +168,7 @@ class RestArtBaseModel {
           delete putData[config.idField];
           consumer.put(
             helper.pathJoin(config.paths[path], id),
-            objectToRestModel(putData),
+            putData,
           ).exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
@@ -169,7 +204,7 @@ class RestArtBaseModel {
           consumer.get(resultPath).exec()
             .then((response) => {
               restModelToObject(opt.resultField && response[opt.resultField] ?
-                response[opt.resultField] : response, constructor);
+                response[opt.resultField] : response, this);
               resolve(response);
             })
             .catch((response) => { reject(response); });
@@ -205,8 +240,9 @@ class RestArtBaseModel {
                 const item = list[i];
                 opt.resultList.push(restModelToObject(
                   item,
-                  (opt.resultListItemType instanceof RestArtBaseModel ?
-                    opt.resultListItemType : constructor),
+                  (opt.resultListItemType &&
+                    opt.resultListItemType.prototype instanceof RestArtBaseModel ?
+                    opt.resultListItemType : this),
                 ));
               }
             }
@@ -219,7 +255,7 @@ class RestArtBaseModel {
 
   delete(options) {
     const constructor = this.constructor;
-    const config = RestArtBaseModel[`${this.name}_config`];
+    const config = RestArtBaseModel[`${constructor.name}_config`];
     const opt = options || {};
     const id = opt.id || this[config.idField];
     const consumer = new RestArtClient({
