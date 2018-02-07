@@ -21,7 +21,7 @@ class XHR {
       }
       this.xhr.onreadystatechange = () => {
         if (this.xhr.readyState === 4) {
-          if (this.xhr.status === 200) {
+          if (this.xhr.status >= 200 && this.xhr.status < 300) {
             // we get the returned data
             const data = JSON.parse(this.xhr.responseText);
             resolve(data);
