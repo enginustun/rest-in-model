@@ -9,7 +9,7 @@ model based REST consumer library.
 // full import
 import RestArt from 'rest-art-model';
 
-// or you can import by destructing
+// or you can import by destructuring
 import { RestArtClient, RestArtBaseModel, settings } from 'rest-art-model';
 
 // setting it up
