@@ -33,4 +33,18 @@ module.exports = {
     }
     return newurl;
   },
+
+  appendQueryParamsToUrl: (url, queryParams) => {
+    let newurl = url;
+    if (queryParams) {
+      const paramKeys = Object.keys(queryParams);
+      for (let i = 0; i < paramKeys.length; i += 1) {
+        const paramKey = paramKeys[i];
+        if (queryParams[paramKey] !== undefined && queryParams[paramKey] !== null) {
+          newurl += `${(newurl.indexOf('?') === -1 ? '?' : '')}${paramKey}=${queryParams[paramKey]}${(i < paramKeys.length - 1 ? '&' : '')}`;
+        }
+      }
+    }
+    return newurl;
+  },
 };

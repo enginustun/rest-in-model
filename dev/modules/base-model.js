@@ -199,8 +199,11 @@ class RestArtBaseModel {
           if (path === 'default') {
             resultPath = helper.pathJoin(config.paths[path], '{id}');
           }
-          // replace url parameters
-          resultPath = helper.replaceUrlParamsWithValues(resultPath, opt.pathData);
+          // replace url parameters and append query parameters
+          resultPath = helper.appendQueryParamsToUrl(
+            helper.replaceUrlParamsWithValues(resultPath, opt.pathData),
+            opt.queryParams,
+          );
           consumer.get(resultPath).exec()
             .then((response) => {
               restModelToObject(opt.resultField && response[opt.resultField] ?
@@ -229,7 +232,12 @@ class RestArtBaseModel {
 
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestArtClient) {
-        const resultPath = helper.replaceUrlParamsWithValues(config.paths[path], opt.pathData);
+        let resultPath = helper.replaceUrlParamsWithValues(config.paths[path], opt.pathData);
+        // replace url parameters and append query parameters
+        resultPath = helper.appendQueryParamsToUrl(
+          helper.replaceUrlParamsWithValues(resultPath, opt.pathData),
+          opt.queryParams,
+        );
         consumer.get(resultPath).exec()
           .then((response) => {
             if (helper.isArray(opt.resultList)) {
