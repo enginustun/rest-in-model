@@ -30,11 +30,11 @@ const objectToRestModel = (model) => {
 class RestArtBaseModel {
   constructor(options) {
     const opt = options || {};
-    const constructor = this.constructor;
+    const { constructor } = this;
     const config = RestArtBaseModel[`${constructor.name}_config`];
     const { fields } = config;
-
     const fieldKeys = Object.keys(fields);
+
     // define each field of fields as model's field
     for (let i = 0; i < fieldKeys.length; i += 1) {
       const fieldKey = fieldKeys[i];
@@ -59,7 +59,7 @@ class RestArtBaseModel {
   }
 
   save(options) {
-    const constructor = this.constructor;
+    const { constructor } = this;
     const config = RestArtBaseModel[`${constructor.name}_config`];
     const { fields } = config;
     const opt = options || {};
@@ -178,7 +178,6 @@ class RestArtBaseModel {
   }
 
   static get(options) {
-    const constructor = this.constructor;
     const opt = options || {};
     const config = RestArtBaseModel[`${this.name}_config`];
     const { id } = opt;
@@ -219,7 +218,6 @@ class RestArtBaseModel {
   }
 
   static all(options) {
-    const constructor = this.constructor;
     const config = RestArtBaseModel[`${this.name}_config`];
     const opt = options || {};
     const consumer = new RestArtClient({
@@ -262,7 +260,7 @@ class RestArtBaseModel {
   }
 
   delete(options) {
-    const constructor = this.constructor;
+    const { constructor } = this;
     const config = RestArtBaseModel[`${constructor.name}_config`];
     const opt = options || {};
     const id = opt.id || this[config.idField];
@@ -287,7 +285,6 @@ class RestArtBaseModel {
   }
 
   static delete(options) {
-    const constructor = this.constructor;
     const config = RestArtBaseModel[`${this.name}_config`];
     const opt = options || {};
     const { id } = opt;
