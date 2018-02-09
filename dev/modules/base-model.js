@@ -181,7 +181,7 @@ class RestArtBaseModel {
     const constructor = this.constructor;
     const opt = options || {};
     const config = RestArtBaseModel[`${this.name}_config`];
-    const id = opt.id || this[config.idField];
+    const { id } = opt;
     const consumer = new RestArtClient({
       endpointName: opt.endpointName || config.endpointName,
       apiPathName: opt.apiPathName || config.apiPathName,
@@ -206,9 +206,9 @@ class RestArtBaseModel {
           );
           consumer.get(resultPath).exec()
             .then((response) => {
-              restModelToObject(opt.resultField && response[opt.resultField] ?
+              const model = restModelToObject(opt.resultField && response[opt.resultField] ?
                 response[opt.resultField] : response, this);
-              resolve(response);
+              resolve({ model, response });
             })
             .catch((response) => { reject(response); });
         } else {
