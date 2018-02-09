@@ -242,6 +242,7 @@ class RestArtBaseModel {
               const list = opt.resultListField &&
                 helper.isArray(response[opt.resultListField]) ?
                 response[opt.resultListField] : response;
+              opt.resultList.length = 0;
               for (let i = 0; i < list.length; i += 1) {
                 const item = list[i];
                 opt.resultList.push(restModelToObject(
