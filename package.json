@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/muendiz/rest-art.git"
+    "url": "git+https://github.com/enginustun/rest-art.git"
   },
   "keywords": [],
   "author": "engin üstün",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/muendiz/rest-art/issues"
+    "url": "https://github.com/enginustun/rest-art/issues"
   },
-  "homepage": "https://github.com/muendiz/rest-art#readme",
+  "homepage": "https://github.com/enginustun/rest-art#readme",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
