@@ -23,7 +23,10 @@ class XHR {
         if (this.xhr.readyState === 4) {
           if (this.xhr.status >= 200 && this.xhr.status < 300) {
             // we get the returned data
-            const data = JSON.parse(this.xhr.responseText);
+            let data = {};
+            if (this.xhr.responseText) {
+              data = JSON.parse(this.xhr.responseText);
+            }
             resolve(data);
           } else {
             reject(new Error(this.xhr.statusText));
