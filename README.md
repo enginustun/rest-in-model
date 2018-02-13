@@ -15,6 +15,10 @@ import { RestArtClient, RestArtBaseModel, settings } from 'rest-art-model';
 // setting it up
 settings.addEndpoint({ name: 'project', value: 'https://jsonplaceholder.typicode.com/' });
 settings.setDefaultEndpoint('project');
+
+settings.addApiPath({ name: 'auth', value: '/auth' });
+settings.addApiPath({ name: 'api', value: '/serve' });
+settings.setDefaultApiPath('api');
 ```
 
 ### Model Definition
@@ -61,4 +65,26 @@ User.delete(options);
 
 User.get(options);
 User.all(options);
+```
+
+### Detailed Explanation
+
+**userInstance.save(options);** //options:{ path, apiPathName, endpointName, patch }
+
+|Property|Description|Type|Default Value|
+|--------|-----------|----|--------|
+|path|one of the path attribute name in paths object defined in model|`string`|default|
+|apiPathName|one of the apiPath attribute name added to settings|`string`|default|
+|endpointName|one of the endpoint attribute name added to settings|`string`|default|
+|patch|array of model fields that need to be updated with patch request|`string[]`|-|
+
+```javascript
+userInstance.save(); // userInstance.id === undefined
+//XHR finished loading: POST "http://localhost:3000/serve/users"
+
+userInstance.save(); // userInstance.id !== undefined
+//XHR finished loading: PUT "http://localhost:3000/serve/users/(:userId)"
+
+userInstance.save({ patch: ['name', 'lastname'] }); // userInstance.id !== undefined
+// XHR finished loading: PATCH "http://localhost:3000/serve/users/(:userId)"
 ```
