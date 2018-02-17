@@ -238,22 +238,21 @@ class RestArtBaseModel {
         );
         consumer.get(resultPath).exec()
           .then((response) => {
-            if (helper.isArray(opt.resultList)) {
-              const list = opt.resultListField &&
-                helper.isArray(response[opt.resultListField]) ?
-                response[opt.resultListField] : response;
-              opt.resultList.length = 0;
-              for (let i = 0; i < list.length; i += 1) {
-                const item = list[i];
-                opt.resultList.push(restModelToObject(
-                  item,
-                  (opt.resultListItemType &&
-                    opt.resultListItemType.prototype instanceof RestArtBaseModel ?
-                    opt.resultListItemType : this),
-                ));
-              }
+            if (!helper.isArray(opt.resultList)) { opt.resultList = []; }
+            const list = opt.resultListField &&
+              helper.isArray(response[opt.resultListField]) ?
+              response[opt.resultListField] : response;
+            opt.resultList.length = 0;
+            for (let i = 0; i < list.length; i += 1) {
+              const item = list[i];
+              opt.resultList.push(restModelToObject(
+                item,
+                (opt.resultListItemType &&
+                  opt.resultListItemType.prototype instanceof RestArtBaseModel ?
+                  opt.resultListItemType : this),
+              ));
             }
-            resolve(response);
+            resolve({ resultList: opt.resultList, response });
           })
           .catch((response) => { reject(response); });
       }
