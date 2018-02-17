@@ -19,6 +19,9 @@ import { RestArtClient, RestArtBaseModel, settings } from 'rest-art-model';
 settings.addEndpoint({ name: 'project', value: 'https://jsonplaceholder.typicode.com/' });
 settings.setDefaultEndpoint('project');
 
+// set additional headers with setHeader method of RestArtBaseModel
+RestArtBaseModel.setHeader('Authorization', 'JWT xxxxxxxxxxxxxxxxxxxx...');
+
 // settings.addApiPath({ name: 'auth', value: '/auth' });
 // settings.addApiPath({ name: 'api', value: '/serve' });
 // settings.setDefaultApiPath('api');
