@@ -10,17 +10,17 @@ model based REST consumer library.
 
 ``` javascript
 // full import
-import RestArt from 'rest-in-model';
+import RestInModel from 'rest-in-model';
 
 // or you can import by destructuring
-import { RestArtClient, RestArtBaseModel, settings } from 'rest-in-model';
+import { RestClient, RestBaseModel, settings } from 'rest-in-model';
 
 // setting it up
 settings.addEndpoint({ name: 'project', value: 'https://jsonplaceholder.typicode.com/' });
 settings.setDefaultEndpoint('project');
 
-// set additional headers with setHeader method of RestArtBaseModel
-RestArtBaseModel.setHeader('Authorization', 'JWT xxxxxxxxxxxxxxxxxxxx...');
+// set additional headers with setHeader method of RestBaseModel
+RestBaseModel.setHeader('Authorization', 'JWT xxxxxxxxxxxxxxxxxxxx...');
 
 // settings.addApiPath({ name: 'auth', value: '/auth' });
 // settings.addApiPath({ name: 'api', value: '/serve' });
@@ -32,9 +32,9 @@ RestArtBaseModel.setHeader('Authorization', 'JWT xxxxxxxxxxxxxxxxxxxx...');
 **User** model:
 
 ``` javascript
-import { RestArtBaseModel } from 'rest-in-model';
+import { RestBaseModel } from 'rest-in-model';
 
-class User extends RestArtBaseModel { }
+class User extends RestBaseModel { }
 
 User.setConfig('idField', 'id');
 User.setConfig('fields', {
@@ -60,9 +60,9 @@ module.exports = User;
 **Post** model:
 
 ``` javascript
-import { RestArtBaseModel } from 'rest-in-model';
+import { RestBaseModel } from 'rest-in-model';
 
-class Post extends RestArtBaseModel { }
+class Post extends RestBaseModel { }
 
 Post.setConfig('idField', 'id');
 Post.setConfig('fields', {
@@ -150,7 +150,7 @@ userInstance.delete({ id: 4 }); // userInstance.id doesn't matter
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
-|model(required)|instance of Model extended from RestArtBaseModel|`instance of RestArtBaseModel`|-|
+|model(required)|instance of Model extended from RestBaseModel|`instance of RestBaseModel`|-|
 |endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
 |apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
@@ -225,7 +225,7 @@ User.get({ id: 2 }).then(({ model, response }) => {
 |--------|-----------|----|--------|
 |resultList(optional)|array object that will be filled models into it|`[]` reference|-|
 |resultListField(optional)|if the response is an object, result list will be converted based on this name from the response. if this property is not provided or 'response[resultListField]' is not an array, the response will be assumed as model list itself and result will be converted from the response directly.|`string`|-|
-|resultListItemType(optional)|it needs to be provided if the result type is different from class type itself.|a model class that is inherited from 'RestArtBaseModel'|itself|
+|resultListItemType(optional)|it needs to be provided if the result type is different from class type itself.|a model class that is inherited from 'RestBaseModel'|itself|
 |endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
 |apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|

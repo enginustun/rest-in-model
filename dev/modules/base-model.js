@@ -1,4 +1,4 @@
-import RestArtClient from './rest-client';
+import RestClient from './rest-client';
 import helper from '../common/helper';
 
 const restModelToObject = (restModel, Type) => {
@@ -37,11 +37,11 @@ const addCustomHeaders = (request) => {
   }
 };
 
-class RestArtBaseModel {
+class RestBaseModel {
   constructor(options) {
     const opt = options || {};
     const { constructor } = this;
-    const config = RestArtBaseModel[`${constructor.name}_config`];
+    const config = RestBaseModel[`${constructor.name}_config`];
     const { fields } = config;
     const fieldKeys = Object.keys(fields);
 
@@ -54,7 +54,7 @@ class RestArtBaseModel {
     // define REST consumer
     if (!constructor.consumer) {
       Object.defineProperty(constructor, 'consumer', {
-        value: new RestArtClient({
+        value: new RestClient({
           endpointName: opt.endpointName || config.endpointName,
           apiPathName: opt.apiPathName || config.apiPathName,
         }),
@@ -64,8 +64,8 @@ class RestArtBaseModel {
   }
 
   static setConfig(name, value) {
-    RestArtBaseModel[`${this.name}_config`] = RestArtBaseModel[`${this.name}_config`] || {};
-    RestArtBaseModel[`${this.name}_config`][name] = value;
+    RestBaseModel[`${this.name}_config`] = RestBaseModel[`${this.name}_config`] || {};
+    RestBaseModel[`${this.name}_config`][name] = value;
   }
 
   static setHeader(name, value) {
@@ -74,11 +74,11 @@ class RestArtBaseModel {
 
   save(options) {
     const { constructor } = this;
-    const config = RestArtBaseModel[`${constructor.name}_config`];
+    const config = RestBaseModel[`${constructor.name}_config`];
     const { fields } = config;
     const opt = options || {};
     const id = this[config.idField];
-    const consumer = new RestArtClient({
+    const consumer = new RestClient({
       endpointName: opt.endpointName || config.endpointName,
       apiPathName: opt.apiPathName || config.apiPathName,
     });
@@ -86,7 +86,7 @@ class RestArtBaseModel {
     path = opt.path || path;
 
     return new Promise((resolve, reject) => {
-      if (consumer instanceof RestArtClient) {
+      if (consumer instanceof RestClient) {
         // if there is no id, then post and save it
         let request;
         if (!id) {
@@ -139,10 +139,10 @@ class RestArtBaseModel {
   }
 
   static save(options) {
-    const config = RestArtBaseModel[`${this.name}_config`];
+    const config = RestBaseModel[`${this.name}_config`];
     const opt = options || {};
     const { fields } = config;
-    const consumer = new RestArtClient({
+    const consumer = new RestClient({
       endpointName: opt.endpointName || config.endpointName,
       apiPathName: opt.apiPathName || config.apiPathName,
     });
@@ -154,7 +154,7 @@ class RestArtBaseModel {
     const id = opt.model[config.idField];
 
     return new Promise((resolve, reject) => {
-      if (consumer instanceof RestArtClient) {
+      if (consumer instanceof RestClient) {
         // if there is no id, then post and save it
         let request;
         if (!id) {
@@ -207,9 +207,9 @@ class RestArtBaseModel {
 
   static get(options) {
     const opt = options || {};
-    const config = RestArtBaseModel[`${this.name}_config`];
+    const config = RestBaseModel[`${this.name}_config`];
     const { id } = opt;
-    const consumer = new RestArtClient({
+    const consumer = new RestClient({
       endpointName: opt.endpointName || config.endpointName,
       apiPathName: opt.apiPathName || config.apiPathName,
     });
@@ -218,7 +218,7 @@ class RestArtBaseModel {
     opt.pathData = opt.pathData || {};
 
     return new Promise((resolve, reject) => {
-      if (consumer instanceof RestArtClient) {
+      if (consumer instanceof RestClient) {
         if (id) {
           // if there is no pathData.id it should be set
           opt.pathData.id = opt.pathData.id || id;
@@ -248,9 +248,9 @@ class RestArtBaseModel {
   }
 
   static all(options) {
-    const config = RestArtBaseModel[`${this.name}_config`];
+    const config = RestBaseModel[`${this.name}_config`];
     const opt = options || {};
-    const consumer = new RestArtClient({
+    const consumer = new RestClient({
       endpointName: opt.endpointName || config.endpointName,
       apiPathName: opt.apiPathName || config.apiPathName,
     });
@@ -259,7 +259,7 @@ class RestArtBaseModel {
     opt.pathData = opt.pathData || {};
 
     return new Promise((resolve, reject) => {
-      if (consumer instanceof RestArtClient) {
+      if (consumer instanceof RestClient) {
         let resultPath = helper.replaceUrlParamsWithValues(config.paths[path], opt.pathData);
         // replace url parameters and append query parameters
         resultPath = helper.appendQueryParamsToUrl(
@@ -280,7 +280,7 @@ class RestArtBaseModel {
               opt.resultList.push(restModelToObject(
                 item,
                 (opt.resultListItemType &&
-                  opt.resultListItemType.prototype instanceof RestArtBaseModel ?
+                  opt.resultListItemType.prototype instanceof RestBaseModel ?
                   opt.resultListItemType : this),
               ));
             }
@@ -293,10 +293,10 @@ class RestArtBaseModel {
 
   delete(options) {
     const { constructor } = this;
-    const config = RestArtBaseModel[`${constructor.name}_config`];
+    const config = RestBaseModel[`${constructor.name}_config`];
     const opt = options || {};
     const id = opt.id || this[config.idField];
-    const consumer = new RestArtClient({
+    const consumer = new RestClient({
       endpointName: opt.endpointName || config.endpointName,
       apiPathName: opt.apiPathName || config.apiPathName,
     });
@@ -304,7 +304,7 @@ class RestArtBaseModel {
     path = opt.path || path;
 
     return new Promise((resolve, reject) => {
-      if (consumer instanceof RestArtClient) {
+      if (consumer instanceof RestClient) {
         if (id) {
           const request = consumer.delete(helper.pathJoin(config.paths[path], id));
           addCustomHeaders(request);
@@ -319,10 +319,10 @@ class RestArtBaseModel {
   }
 
   static delete(options) {
-    const config = RestArtBaseModel[`${this.name}_config`];
+    const config = RestBaseModel[`${this.name}_config`];
     const opt = options || {};
     const { id } = opt;
-    const consumer = new RestArtClient({
+    const consumer = new RestClient({
       endpointName: opt.endpointName || config.endpointName,
       apiPathName: opt.apiPathName || config.apiPathName,
     });
@@ -330,7 +330,7 @@ class RestArtBaseModel {
     path = opt.path || path;
 
     return new Promise((resolve, reject) => {
-      if (consumer instanceof RestArtClient) {
+      if (consumer instanceof RestClient) {
         if (id) {
           const request = consumer.delete(helper.pathJoin(config.paths[path], id));
           addCustomHeaders(request);
@@ -345,4 +345,4 @@ class RestArtBaseModel {
   }
 }
 
-export default RestArtBaseModel;
+export default RestBaseModel;

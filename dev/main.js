@@ -1,11 +1,11 @@
-import RestArtClient from './modules/rest-client';
-import RestArtBaseModel from './modules/base-model';
+import RestClient from './modules/rest-client';
+import RestBaseModel from './modules/base-model';
 import settings from './modules/settings';
 import helper from './common/helper';
 
 module.exports = {
-  RestArtClient,
-  RestArtBaseModel,
+  RestClient,
+  RestBaseModel,
   settings: {
     addEndpoint: (endpoint) => {
       if (helper.isObject(endpoint) && endpoint.name && endpoint.value) {
