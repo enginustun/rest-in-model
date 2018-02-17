@@ -38,8 +38,8 @@ const addCustomHeaders = (request) => {
 };
 
 class RestBaseModel {
-  constructor(options) {
-    const opt = options || {};
+  constructor(_model) {
+    const model = _model || {};
     const { constructor } = this;
     const config = RestBaseModel[`${constructor.name}_config`];
     const { fields } = config;
@@ -48,15 +48,17 @@ class RestBaseModel {
     // define each field of fields as model's field
     for (let i = 0; i < fieldKeys.length; i += 1) {
       const fieldKey = fieldKeys[i];
-      this[fieldKey] = fields[fieldKey] ? fields[fieldKey].default : undefined;
+      this[fieldKey] = model[fields[fieldKey].map] === undefined ?
+        model[fieldKey] : model[fields[fieldKey].map] ||
+        (fields[fieldKey] ? fields[fieldKey].default : undefined);
     }
 
     // define REST consumer
     if (!constructor.consumer) {
       Object.defineProperty(constructor, 'consumer', {
         value: new RestClient({
-          endpointName: opt.endpointName || config.endpointName,
-          apiPathName: opt.apiPathName || config.apiPathName,
+          endpointName: config.endpointName,
+          apiPathName: config.apiPathName,
         }),
         writable: true,
       });

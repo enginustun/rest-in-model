@@ -157,14 +157,16 @@ userInstance.delete({ id: 4 }); // userInstance.id doesn't matter
 |patch(optional)|array of model fields that need to be updated with patch request|`string[]`|-|
 
 ``` javascript
-const userInstance = new User();
-userInstance.name = 'engin üstün';
-userInstance.username = 'enginustun';
-userInstance.email = 'enginustun@outlook.com';
-userInstance.company = '-';
-userInstance.phone = '-';
-userInstance.website = '-';
-userInstance.address = '-';
+const userInstance = new User({
+  name: 'engin üstün',
+  username: 'enginustun',
+  email: 'enginustun@outlook.com',
+  company: '-',
+  phone: '-',
+  website: '-',
+  address: '-'
+});
+
 User.save({ model: userInstance }).then((response) => {
   // response is original server response
   // userInstance.id === id of saved record
