@@ -27,6 +27,16 @@ const objectToRestModel = (model) => {
   return restModel;
 };
 
+const customHeaders = {};
+
+const addCustomHeaders = (request) => {
+  const customHeaderKeys = Object.keys(customHeaders);
+  for (let i = 0; i < customHeaderKeys.length; i += 1) {
+    const headerKey = customHeaderKeys[i];
+    request.setHeader(headerKey, customHeaders[headerKey]);
+  }
+};
+
 class RestArtBaseModel {
   constructor(options) {
     const opt = options || {};
@@ -58,6 +68,10 @@ class RestArtBaseModel {
     RestArtBaseModel[`${this.name}_config`][name] = value;
   }
 
+  static setHeader(name, value) {
+    customHeaders[name] = value;
+  }
+
   save(options) {
     const { constructor } = this;
     const config = RestArtBaseModel[`${constructor.name}_config`];
@@ -74,8 +88,11 @@ class RestArtBaseModel {
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestArtClient) {
         // if there is no id, then post and save it
+        let request;
         if (!id) {
-          consumer.post(config.paths[path], objectToRestModel(this)).exec()
+          request = consumer.post(config.paths[path], objectToRestModel(this));
+          addCustomHeaders(request);
+          request.exec()
             .then((response) => {
               this[config.idField] =
                 response[config.fields[config.idField].map || config.idField];
@@ -90,10 +107,12 @@ class RestArtBaseModel {
             const key = fields[opt.patch[i]].map || opt.patch[i];
             patchData[key] = convertedModel[key];
           }
-          consumer.patch(
+          request = consumer.patch(
             helper.pathJoin(config.paths[path], id),
             patchData,
-          ).exec()
+          );
+          addCustomHeaders(request);
+          request.exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         } else {
@@ -106,10 +125,12 @@ class RestArtBaseModel {
             putData[key] = convertedModel[key];
           }
           delete putData[config.idField];
-          consumer.put(
+          request = consumer.put(
             helper.pathJoin(config.paths[path], id),
             putData,
-          ).exec()
+          );
+          addCustomHeaders(request);
+          request.exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         }
@@ -135,8 +156,11 @@ class RestArtBaseModel {
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestArtClient) {
         // if there is no id, then post and save it
+        let request;
         if (!id) {
-          consumer.post(config.paths[path], objectToRestModel(opt.model)).exec()
+          request = consumer.post(config.paths[path], objectToRestModel(opt.model));
+          addCustomHeaders(request);
+          request.exec()
             .then((response) => {
               opt.model[config.idField] =
                 response[config.fields[config.idField].map || config.idField];
@@ -151,10 +175,12 @@ class RestArtBaseModel {
             const key = fields[opt.patch[i]].map || opt.patch[i];
             patchData[key] = convertedModel[key];
           }
-          consumer.patch(
+          request = consumer.patch(
             helper.pathJoin(config.paths[path], id),
             patchData,
-          ).exec()
+          );
+          addCustomHeaders(request);
+          request.exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         } else {
@@ -166,10 +192,12 @@ class RestArtBaseModel {
             putData[key] = opt.model[key];
           }
           delete putData[config.idField];
-          consumer.put(
+          request = consumer.put(
             helper.pathJoin(config.paths[path], id),
             putData,
-          ).exec()
+          );
+          addCustomHeaders(request);
+          request.exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         }
@@ -203,7 +231,9 @@ class RestArtBaseModel {
             helper.replaceUrlParamsWithValues(resultPath, opt.pathData),
             opt.queryParams,
           );
-          consumer.get(resultPath).exec()
+          const request = consumer.get(resultPath);
+          addCustomHeaders(request);
+          request.exec()
             .then((response) => {
               const model = restModelToObject(opt.resultField && response[opt.resultField] ?
                 response[opt.resultField] : response, this);
@@ -236,7 +266,9 @@ class RestArtBaseModel {
           helper.replaceUrlParamsWithValues(resultPath, opt.pathData),
           opt.queryParams,
         );
-        consumer.get(resultPath).exec()
+        const request = consumer.get(resultPath);
+        addCustomHeaders(request);
+        request.exec()
           .then((response) => {
             if (!helper.isArray(opt.resultList)) { opt.resultList = []; }
             const list = opt.resultListField &&
@@ -274,7 +306,9 @@ class RestArtBaseModel {
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestArtClient) {
         if (id) {
-          consumer.delete(helper.pathJoin(config.paths[path], id)).exec()
+          const request = consumer.delete(helper.pathJoin(config.paths[path], id));
+          addCustomHeaders(request);
+          request.exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         } else {
@@ -298,7 +332,9 @@ class RestArtBaseModel {
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestArtClient) {
         if (id) {
-          consumer.delete(helper.pathJoin(config.paths[path], id)).exec()
+          const request = consumer.delete(helper.pathJoin(config.paths[path], id));
+          addCustomHeaders(request);
+          request.exec()
             .then((response) => { resolve(response); })
             .catch((response) => { reject(response); });
         } else {
