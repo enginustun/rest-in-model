@@ -9,7 +9,7 @@ const setDefaultHeaders = (request) => {
   }
 };
 
-class RestArtClient {
+class RestClient {
   constructor(_settings) {
     this.settings = {};
     if (helper.isObject(_settings)) {
@@ -64,4 +64,4 @@ class RestArtClient {
   }
 }
 
-export default RestArtClient;
+export default RestClient;
