@@ -1,19 +1,19 @@
-# rest-art
+# rest-in-model
 
 model based REST consumer library.
 
 ## Installing
 
-`npm install rest-art-model`
+`npm install rest-in-model`
 
 ## Usage
 
 ``` javascript
 // full import
-import RestArt from 'rest-art-model';
+import RestArt from 'rest-in-model';
 
 // or you can import by destructuring
-import { RestArtClient, RestArtBaseModel, settings } from 'rest-art-model';
+import { RestArtClient, RestArtBaseModel, settings } from 'rest-in-model';
 
 // setting it up
 settings.addEndpoint({ name: 'project', value: 'https://jsonplaceholder.typicode.com/' });
@@ -32,7 +32,7 @@ RestArtBaseModel.setHeader('Authorization', 'JWT xxxxxxxxxxxxxxxxxxxx...');
 **User** model:
 
 ``` javascript
-import { RestArtBaseModel } from '../lib/rest-art.js';
+import { RestArtBaseModel } from 'rest-in-model';
 
 class User extends RestArtBaseModel { }
 
@@ -60,7 +60,7 @@ module.exports = User;
 **Post** model:
 
 ``` javascript
-import { RestArtBaseModel } from '../lib/rest-art.js';
+import { RestArtBaseModel } from 'rest-in-model';
 
 class Post extends RestArtBaseModel { }
 

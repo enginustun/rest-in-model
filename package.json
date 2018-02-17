@@ -1,8 +1,8 @@
 {
-  "name": "rest-art",
+  "name": "rest-in-model",
   "version": "0.0.0",
   "description": "model based REST consumer library.",
-  "main": "dist/rest-art.js",
+  "main": "dist/rest-in-model.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --progress",
@@ -10,15 +10,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/enginustun/rest-art.git"
+    "url": "git+https://github.com/enginustun/rest-in-model.git"
   },
   "keywords": [],
   "author": "engin üstün",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/enginustun/rest-art/issues"
+    "url": "https://github.com/enginustun/rest-in-model/issues"
   },
-  "homepage": "https://github.com/enginustun/rest-art#readme",
+  "homepage": "https://github.com/enginustun/rest-in-model#readme",
+  "readme": "https://github.com/enginustun/rest-in-model/blob/master/README.md",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",

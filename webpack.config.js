@@ -9,8 +9,8 @@ const config = {
   entry: path.resolve(APP_DIR, 'main.js'),
   output: {
     path: BUILD_DIR,
-    filename: prod ? 'rest-art.min.js' : 'rest-art.js',
-    library: 'rest-art',
+    filename: prod ? 'rest-in-model.min.js' : 'rest-in-model.js',
+    library: 'rest-in-model',
     libraryTarget: 'umd',
     umdNamedDefine: true,
   },
