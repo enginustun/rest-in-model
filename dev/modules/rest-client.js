@@ -2,6 +2,13 @@ import settings from './settings';
 import XHR from './xhr';
 import helper from '../common/helper';
 
+const setDefaultHeaders = (request) => {
+  if (request instanceof XHR) {
+    request.setHeader('Accept', settings.headers.accept);
+    request.setHeader('Content-Type', settings.headers.contentType);
+  }
+};
+
 class RestArtClient {
   constructor(_settings) {
     this.settings = {};
@@ -13,16 +20,9 @@ class RestArtClient {
     }
   }
 
-  static setDefaultHeaders(request) {
-    if (request instanceof XHR) {
-      request.setHeader('Accept', settings.headers.accept);
-      request.setHeader('Content-Type', settings.headers.contentType);
-    }
-  }
-
   get(service) {
     const request = new XHR();
-    RestArtClient.setDefaultHeaders(request);
+    setDefaultHeaders(request);
     request.method = 'GET';
     request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
     return request;
@@ -30,7 +30,7 @@ class RestArtClient {
 
   post(service, data) {
     const request = new XHR();
-    RestArtClient.setDefaultHeaders(request);
+    setDefaultHeaders(request);
     request.method = 'POST';
     request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
     request.data = data;
@@ -39,7 +39,7 @@ class RestArtClient {
 
   put(service, data) {
     const request = new XHR();
-    RestArtClient.setDefaultHeaders(request);
+    setDefaultHeaders(request);
     request.method = 'PUT';
     request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
     request.data = data;
@@ -48,7 +48,7 @@ class RestArtClient {
 
   patch(service, data) {
     const request = new XHR();
-    RestArtClient.setDefaultHeaders(request);
+    setDefaultHeaders(request);
     request.method = 'PATCH';
     request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
     request.data = data;
@@ -57,7 +57,7 @@ class RestArtClient {
 
   delete(service) {
     const request = new XHR();
-    RestArtClient.setDefaultHeaders(request);
+    setDefaultHeaders(request);
     request.method = 'DELETE';
     request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
     return request;
