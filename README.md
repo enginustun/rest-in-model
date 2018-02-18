@@ -130,7 +130,7 @@ userInstance.save({ patch: ['name', 'lastname'] }); // userInstance.id !== undef
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
-|id(optional)|optional id parameter of model will be deleted. if it is not provided, it will be got from model|`number|string`|-|
+|id(optional)|optional id parameter of model will be deleted. if it is not provided, it will be got from model|`number\|string`|-|
 |endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
 |apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
@@ -157,14 +157,16 @@ userInstance.delete({ id: 4 }); // userInstance.id doesn't matter
 |patch(optional)|array of model fields that need to be updated with patch request|`string[]`|-|
 
 ``` javascript
-const userInstance = new User();
-userInstance.name = 'engin üstün';
-userInstance.username = 'enginustun';
-userInstance.email = 'enginustun@outlook.com';
-userInstance.company = '-';
-userInstance.phone = '-';
-userInstance.website = '-';
-userInstance.address = '-';
+const userInstance = new User({
+  name: 'engin üstün',
+  username: 'enginustun',
+  email: 'enginustun@outlook.com',
+  company: '-',
+  phone: '-',
+  website: '-',
+  address: '-'
+});
+
 User.save({ model: userInstance }).then((response) => {
   // response is original server response
   // userInstance.id === id of saved record
@@ -179,7 +181,7 @@ User.save({ model: userInstance }).then((response) => {
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
-|id(required)|required id parameter of model will be deleted. if it is not provided, there will be an error thrown|`number|string`|-|
+|id(required)|required id parameter of model will be deleted. if it is not provided, there will be an error thrown|`number\|string`|-|
 |endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
 |apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
@@ -198,7 +200,7 @@ User.delete({ id: 4 });
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
-|id(required)|required id parameter of model will be requested from server. if it is not provided, there will be an error thrown|`number|string`|-|
+|id(required)|required id parameter of model will be requested from server. if it is not provided, there will be an error thrown|`number\|string`|-|
 |endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
 |apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
