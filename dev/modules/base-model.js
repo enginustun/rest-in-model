@@ -98,9 +98,9 @@ class RestBaseModel {
             .then((response) => {
               this[config.idField] =
                 response[config.fields[config.idField].map || config.idField];
-              resolve(response);
+              resolve({ response, request: request.xhr });
             })
-            .catch((response) => { reject(response); });
+            .catch((response) => { reject({ response, request: request.xhr }); });
         } else if (helper.isArray(opt.patch)) {
           // if there is 'patch' attribute in option, only patch these fields
           const patchData = {};
@@ -115,8 +115,8 @@ class RestBaseModel {
           );
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
-            .catch((response) => { reject(response); });
+            .then((response) => { resolve({ response, request: request.xhr }); })
+            .catch((response) => { reject({ response, request: request.xhr }); });
         } else {
           // otherwise put all fields
           const putData = {};
@@ -133,8 +133,8 @@ class RestBaseModel {
           );
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
-            .catch((response) => { reject(response); });
+            .then((response) => { resolve({ response, request: request.xhr }); })
+            .catch((response) => { reject({ response, request: request.xhr }); });
         }
       }
     });
@@ -166,9 +166,9 @@ class RestBaseModel {
             .then((response) => {
               opt.model[config.idField] =
                 response[config.fields[config.idField].map || config.idField];
-              resolve(response);
+              resolve({ response, request: request.xhr });
             })
-            .catch((response) => { reject(response); });
+            .catch((response) => { reject({ response, request: request.xhr }); });
         } else if (helper.isArray(opt.patch)) {
           // if there is 'patch' attribute in option, only patch these fields
           const patchData = {};
@@ -183,8 +183,8 @@ class RestBaseModel {
           );
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
-            .catch((response) => { reject(response); });
+            .then((response) => { resolve({ response, request: request.xhr }); })
+            .catch((response) => { reject({ response, request: request.xhr }); });
         } else {
           // otherwise put all fields
           const putData = {};
@@ -200,8 +200,8 @@ class RestBaseModel {
           );
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
-            .catch((response) => { reject(response); });
+            .then((response) => { resolve({ response, request: request.xhr }); })
+            .catch((response) => { reject({ response, request: request.xhr }); });
         }
       }
     });
@@ -239,9 +239,9 @@ class RestBaseModel {
             .then((response) => {
               const model = restModelToObject(opt.resultField && response[opt.resultField] ?
                 response[opt.resultField] : response, this);
-              resolve({ model, response });
+              resolve({ model, response, request: request.xhr });
             })
-            .catch((response) => { reject(response); });
+            .catch((response) => { reject({ response, request: request.xhr }); });
         } else {
           reject(new Error('id parameter must be provided in options or object\'s id field must be set before calling this method.'));
         }
@@ -286,9 +286,9 @@ class RestBaseModel {
                   opt.resultListItemType : this),
               ));
             }
-            resolve({ resultList: opt.resultList, response });
+            resolve({ resultList: opt.resultList, response, request: request.xhr });
           })
-          .catch((response) => { reject(response); });
+          .catch((response) => { reject({ response, request: request.xhr }); });
       }
     });
   }
@@ -311,8 +311,8 @@ class RestBaseModel {
           const request = consumer.delete(helper.pathJoin(config.paths[path], id));
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
-            .catch((response) => { reject(response); });
+            .then((response) => { resolve({ response, request: request.xhr }); })
+            .catch((response) => { reject({ response, request: request.xhr }); });
         } else {
           reject(new Error('id parameter must be provided in options or object\'s id field must be set before calling this method.'));
         }
@@ -337,8 +337,8 @@ class RestBaseModel {
           const request = consumer.delete(helper.pathJoin(config.paths[path], id));
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
-            .catch((response) => { reject(response); });
+            .then((response) => { resolve({ response, request: request.xhr }); })
+            .catch((response) => { reject({ response, request: request.xhr }); });
         } else {
           reject(new Error('id parameter must be provided in options or object\'s id field must be set before calling this method.'));
         }
