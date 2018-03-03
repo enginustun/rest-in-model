@@ -98,7 +98,7 @@ class RestBaseModel {
             .then((response) => {
               this[config.idField] =
                 response[config.fields[config.idField].map || config.idField];
-              resolve(response);
+              resolve({ response, request: request.xhr });
             })
             .catch((response) => { reject(response); });
         } else if (helper.isArray(opt.patch)) {
@@ -115,7 +115,7 @@ class RestBaseModel {
           );
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
+            .then((response) => { resolve({ response, request: request.xhr }); })
             .catch((response) => { reject(response); });
         } else {
           // otherwise put all fields
@@ -133,7 +133,7 @@ class RestBaseModel {
           );
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
+            .then((response) => { resolve({ response, request: request.xhr }); })
             .catch((response) => { reject(response); });
         }
       }
@@ -166,7 +166,7 @@ class RestBaseModel {
             .then((response) => {
               opt.model[config.idField] =
                 response[config.fields[config.idField].map || config.idField];
-              resolve(response);
+              resolve({ response, request: request.xhr });
             })
             .catch((response) => { reject(response); });
         } else if (helper.isArray(opt.patch)) {
@@ -183,7 +183,7 @@ class RestBaseModel {
           );
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
+            .then((response) => { resolve({ response, request: request.xhr }); })
             .catch((response) => { reject(response); });
         } else {
           // otherwise put all fields
@@ -200,7 +200,7 @@ class RestBaseModel {
           );
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
+            .then((response) => { resolve({ response, request: request.xhr }); })
             .catch((response) => { reject(response); });
         }
       }
@@ -239,7 +239,7 @@ class RestBaseModel {
             .then((response) => {
               const model = restModelToObject(opt.resultField && response[opt.resultField] ?
                 response[opt.resultField] : response, this);
-              resolve({ model, response });
+              resolve({ model, response, request: request.xhr });
             })
             .catch((response) => { reject(response); });
         } else {
@@ -286,7 +286,7 @@ class RestBaseModel {
                   opt.resultListItemType : this),
               ));
             }
-            resolve({ resultList: opt.resultList, response });
+            resolve({ resultList: opt.resultList, response, request: request.xhr });
           })
           .catch((response) => { reject(response); });
       }
@@ -311,7 +311,7 @@ class RestBaseModel {
           const request = consumer.delete(helper.pathJoin(config.paths[path], id));
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
+            .then((response) => { resolve({ response, request: request.xhr }); })
             .catch((response) => { reject(response); });
         } else {
           reject(new Error('id parameter must be provided in options or object\'s id field must be set before calling this method.'));
@@ -337,7 +337,7 @@ class RestBaseModel {
           const request = consumer.delete(helper.pathJoin(config.paths[path], id));
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve(response); })
+            .then((response) => { resolve({ response, request: request.xhr }); })
             .catch((response) => { reject(response); });
         } else {
           reject(new Error('id parameter must be provided in options or object\'s id field must be set before calling this method.'));
