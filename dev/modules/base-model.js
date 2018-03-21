@@ -48,9 +48,11 @@ class RestBaseModel {
     // define each field of fields as model's field
     for (let i = 0; i < fieldKeys.length; i += 1) {
       const fieldKey = fieldKeys[i];
-      this[fieldKey] = model[fields[fieldKey].map] === undefined ?
-        model[fieldKey] : model[fields[fieldKey].map] ||
+      this[fieldKey] = (model[fields[fieldKey].map] === undefined ?
+        model[fieldKey] : model[fields[fieldKey].map]) ||
         (fields[fieldKey] ? fields[fieldKey].default : undefined);
+      this[fieldKey] = helper.isArray(this[fieldKey]) ? [] :
+        helper.isObject(this[fieldKey]) ? {} : this[fieldKey];
     }
 
     // define REST consumer
