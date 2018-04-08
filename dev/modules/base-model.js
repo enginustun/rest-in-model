@@ -96,7 +96,18 @@ class RestBaseModel {
         // if there is no id, then post and save it
         let request;
         if (!id) {
-          request = consumer.post(config.paths[path], objectToRestModel(this));
+          var data = {};
+          var convertedModel = objectToRestModel(this);
+          if (helper.isArray(opt.dataKeys)) {
+            for (var i = 0; i < opt.dataKeys.length; i += 1) {
+              var key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
+              data[key] = convertedModel[key];
+            }
+          } else {
+            data = convertedModel;
+          }
+          delete data[config.idField];
+          request = consumer.post(config.paths[path], data);
           addCustomHeaders(request);
           request.exec()
             .then((response) => {
@@ -105,17 +116,21 @@ class RestBaseModel {
               resolve({ response, request: request.xhr });
             })
             .catch((response) => { reject({ response, request: request.xhr }); });
-        } else if (helper.isArray(opt.patch)) {
+        } else if (opt.updateMethod === 'patch') {
           // if there is 'patch' attribute in option, only patch these fields
-          const patchData = {};
-          const convertedModel = objectToRestModel(this);
-          for (let i = 0; i < opt.patch.length; i += 1) {
-            const key = fields[opt.patch[i]].map || opt.patch[i];
-            patchData[key] = convertedModel[key];
+          var data = {};
+          var convertedModel = objectToRestModel(this);
+          if (helper.isArray(opt.dataKeys)) {
+            for (var i = 0; i < opt.dataKeys.length; i += 1) {
+              var key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
+              data[key] = convertedModel[key];
+            }
+          } else {
+            data = convertedModel;
           }
           request = consumer.patch(
             helper.pathJoin(config.paths[path], id),
-            patchData,
+            data,
           );
           addCustomHeaders(request);
           request.exec()
@@ -123,17 +138,20 @@ class RestBaseModel {
             .catch((response) => { reject({ response, request: request.xhr }); });
         } else {
           // otherwise put all fields
-          const putData = {};
-          const convertedModel = objectToRestModel(this);
-          const fieldKeys = Object.keys(convertedModel);
-          for (let i = 0; i < fieldKeys.length; i += 1) {
-            const key = fieldKeys[i];
-            putData[key] = convertedModel[key];
+          var data = {};
+          var convertedModel = objectToRestModel(this);
+          if (helper.isArray(opt.dataKeys)) {
+            for (var i = 0; i < opt.dataKeys.length; i += 1) {
+              var key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
+              data[key] = convertedModel[key];
+            }
+          } else {
+            data = convertedModel;
           }
-          delete putData[config.idField];
+          delete data[config.idField];
           request = consumer.put(
             helper.pathJoin(config.paths[path], id),
-            putData,
+            data,
           );
           addCustomHeaders(request);
           request.exec()

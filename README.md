@@ -103,14 +103,15 @@ User.all(options);
 
 **userInstance.save(options);**
 
-`options: { endpointName, apiPathName, path, patch }`
+`options: { endpointName, apiPathName, path, dataKeys }`
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
 |endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
 |apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
-|patch(optional)|array of model fields that need to be updated with patch request|`string[]`|-|
+|dataKeys(optional)|array of model fields that need to be updated with patch/put request|`string[]`|-|
+|updateMethod(optional)|patch or put|`string`|put|
 
 ```javascript
 userInstance.save(); // userInstance.id === undefined
@@ -154,7 +155,8 @@ userInstance.delete({ id: 4 }); // userInstance.id doesn't matter
 |endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
 |apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
-|patch(optional)|array of model fields that need to be updated with patch request|`string[]`|-|
+|dataKeys(optional)|array of model fields that need to be updated with patch/put request|`string[]`|-|
+|updateMethod(optional)|patch or put|`string`|put|
 
 ``` javascript
 const userInstance = new User({
