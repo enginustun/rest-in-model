@@ -74,6 +74,11 @@ class RestBaseModel {
     RestBaseModel[`${this.name}_config`][name] = value;
   }
 
+  static getConfig(name) {
+    RestBaseModel[`${this.name}_config`] = RestBaseModel[`${this.name}_config`] || {};
+    return RestBaseModel[`${this.name}_config`][name];
+  }
+
   static setHeader(name, value) {
     customHeaders[name] = value;
   }
