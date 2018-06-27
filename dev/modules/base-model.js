@@ -286,6 +286,7 @@ class RestBaseModel {
     let path = 'default';
     path = opt.path || path;
     opt.pathData = opt.pathData || {};
+    opt.resultListField = opt.resultListField || config.resultListField;
 
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestClient) {
