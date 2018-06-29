@@ -37,33 +37,32 @@ const addCustomHeaders = (request) => {
   }
 };
 
+const newConsumer = (opt, config) => ({
+  endpointName: opt.endpointName || config.endpointName,
+  apiPathName: opt.apiPathName || config.apiPathName,
+});
+
 class RestBaseModel {
   constructor(_model) {
     const model = _model || {};
     const { constructor } = this;
     const config = RestBaseModel[`${constructor.name}_config`];
     const { fields } = config;
-    const fieldKeys = Object.keys(fields);
 
-    // define each field of fields as model's field
-    for (let i = 0; i < fieldKeys.length; i += 1) {
-      const fieldKey = fieldKeys[i];
-      this[fieldKey] = model[fields[fieldKey].map] === undefined ?
+    Object.keys(fields).map((fieldKey) => {
+ this[fieldKey] = model[fields[fieldKey].map] === undefined ?
         model[fieldKey] : model[fields[fieldKey].map];
       this[fieldKey] = this[fieldKey] === undefined ?
         (fields[fieldKey] ? fields[fieldKey].default : null) : this[fieldKey];
       this[fieldKey] = helper.isArray(this[fieldKey]) ? [] :
         helper.isObject(this[fieldKey]) ? {} : this[fieldKey];
       this[fieldKey] = this[fieldKey] === undefined ? null : this[fieldKey];
-    }
-
+    });
+    
     // define REST consumer
     if (!constructor.consumer) {
       Object.defineProperty(constructor, 'consumer', {
-        value: new RestClient({
-          endpointName: config.endpointName,
-          apiPathName: config.apiPathName,
-        }),
+        value: new RestClient(newConsumer({}, config)),
         writable: true,
       });
     }
@@ -89,23 +88,19 @@ class RestBaseModel {
     const { fields } = config;
     const opt = options || {};
     const id = this[config.idField];
-    const consumer = new RestClient({
-      endpointName: opt.endpointName || config.endpointName,
-      apiPathName: opt.apiPathName || config.apiPathName,
-    });
-    let path = 'default';
-    path = opt.path || path;
+    const consumer = new RestClient(newConsumer(opt, config));
+    let path = opt.path || 'default';
 
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestClient) {
         // if there is no id, then post and save it
         let request;
         if (!id) {
-          var data = {};
-          var convertedModel = objectToRestModel(this);
+          let data = {};
+          let convertedModel = objectToRestModel(this);
           if (helper.isArray(opt.dataKeys)) {
-            for (var i = 0; i < opt.dataKeys.length; i += 1) {
-              var key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
+            for (let i = 0; i < opt.dataKeys.length; i += 1) {
+              let key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
               data[key] = convertedModel[key];
             }
           } else {
@@ -123,11 +118,11 @@ class RestBaseModel {
             .catch((response) => { reject({ response, request: request.xhr }); });
         } else if (opt.updateMethod === 'patch') {
           // if there is 'patch' attribute in option, only patch these fields
-          var data = {};
-          var convertedModel = objectToRestModel(this);
+          let data = {};
+          let convertedModel = objectToRestModel(this);
           if (helper.isArray(opt.dataKeys)) {
-            for (var i = 0; i < opt.dataKeys.length; i += 1) {
-              var key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
+            for (let i = 0; i < opt.dataKeys.length; i += 1) {
+              let key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
               data[key] = convertedModel[key];
             }
           } else {
@@ -143,11 +138,11 @@ class RestBaseModel {
             .catch((response) => { reject({ response, request: request.xhr }); });
         } else {
           // otherwise put all fields
-          var data = {};
-          var convertedModel = objectToRestModel(this);
+          let data = {};
+          let convertedModel = objectToRestModel(this);
           if (helper.isArray(opt.dataKeys)) {
-            for (var i = 0; i < opt.dataKeys.length; i += 1) {
-              var key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
+            for (let i = 0; i < opt.dataKeys.length; i += 1) {
+              let key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
               data[key] = convertedModel[key];
             }
           } else {
@@ -171,12 +166,9 @@ class RestBaseModel {
     const config = RestBaseModel[`${this.name}_config`];
     const opt = options || {};
     const { fields } = config;
-    const consumer = new RestClient({
-      endpointName: opt.endpointName || config.endpointName,
-      apiPathName: opt.apiPathName || config.apiPathName,
-    });
-    let path = 'default';
-    path = opt.path || path;
+    const consumer = new RestClient(newConsumer(opt, config));
+    let path = opt.path || 'default';
+
     if (!(opt.model instanceof this)) {
       throw Error('model must be provided as option parameter');
     }
@@ -238,12 +230,8 @@ class RestBaseModel {
     const opt = options || {};
     const config = RestBaseModel[`${this.name}_config`];
     const { id } = opt;
-    const consumer = new RestClient({
-      endpointName: opt.endpointName || config.endpointName,
-      apiPathName: opt.apiPathName || config.apiPathName,
-    });
-    let path = 'default';
-    path = opt.path || path;
+    const consumer = new RestClient(newConsumer(opt, config));
+    let path = opt.path || 'default';
     opt.pathData = opt.pathData || {};
 
     return new Promise((resolve, reject) => {
@@ -279,12 +267,8 @@ class RestBaseModel {
   static all(options) {
     const config = RestBaseModel[`${this.name}_config`];
     const opt = options || {};
-    const consumer = new RestClient({
-      endpointName: opt.endpointName || config.endpointName,
-      apiPathName: opt.apiPathName || config.apiPathName,
-    });
-    let path = 'default';
-    path = opt.path || path;
+    const consumer = new RestClient(newConsumer(opt, config));
+    let path = opt.path || 'default';
     opt.pathData = opt.pathData || {};
     opt.resultListField = opt.resultListField || config.resultListField;
 
@@ -326,12 +310,8 @@ class RestBaseModel {
     const config = RestBaseModel[`${constructor.name}_config`];
     const opt = options || {};
     const id = opt.id || this[config.idField];
-    const consumer = new RestClient({
-      endpointName: opt.endpointName || config.endpointName,
-      apiPathName: opt.apiPathName || config.apiPathName,
-    });
-    let path = 'default';
-    path = opt.path || path;
+    const consumer = new RestClient(newConsumer(opt, config));
+    let path = opt.path || 'default';
 
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestClient) {
@@ -352,12 +332,8 @@ class RestBaseModel {
     const config = RestBaseModel[`${this.name}_config`];
     const opt = options || {};
     const { id } = opt;
-    const consumer = new RestClient({
-      endpointName: opt.endpointName || config.endpointName,
-      apiPathName: opt.apiPathName || config.apiPathName,
-    });
-    let path = 'default';
-    path = opt.path || path;
+    const consumer = new RestClient(newConsumer(opt, config));
+    let path = opt.path || 'default';
 
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestClient) {
