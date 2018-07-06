@@ -11,7 +11,7 @@ module.exports = {
       if (helper.isObject(endpoint) && endpoint.name && endpoint.value) {
         settings.endpoints[endpoint.name] = endpoint.value;
         if (endpoint.default) {
-          if (settings.defaultEndpoint !== '') {
+          if (settings.defaultEndpoint) {
             throw new Error('There can be only one default endpoint');
           }
           settings.defaultEndpoint = endpoint.name;
@@ -21,7 +21,7 @@ module.exports = {
           if (item.name && item.value) {
             settings.endpoints[item.name] = item.value;
             if (item.default) {
-              if (settings.defaultEndpoint !== '') {
+              if (settings.defaultEndpoint) {
                 throw new Error('There can be only one default endpoint');
               }
               settings.defaultEndpoint = item.name;
