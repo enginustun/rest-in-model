@@ -15,8 +15,23 @@ import RestInModel from 'rest-in-model';
 // or you can import by destructuring
 import { RestClient, RestBaseModel, settings } from 'rest-in-model';
 
-// setting it up
+### Settings
+// Add single endpoint
 settings.addEndpoint({ name: 'project', value: 'https://jsonplaceholder.typicode.com/' });
+// Add multiple endpoint. And in this case can be only one default endpoint, otherwise throw error
+settings.addEndpoint([
+  {
+    name: 'project',
+    value: 'https://jsonplaceholder.typicode.com/',
+    default: true,
+  },
+  {
+    name: 'daa',
+    value: 'https://jsonplaceholder.typicode.com/aaaa',
+  },
+]);
+
+// set default endpoint uses that cases: if either not given default endpoint or desired to change default endpoint
 settings.setDefaultEndpoint('project');
 
 // set additional headers with setHeader method of RestBaseModel
