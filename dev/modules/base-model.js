@@ -50,15 +50,27 @@ class RestBaseModel {
     const { fields } = config;
 
     Object.keys(fields).map((fieldKey) => {
-      this[fieldKey] = model[fields[fieldKey].map] === undefined ?
-        model[fieldKey] : model[fields[fieldKey].map];
-      this[fieldKey] = this[fieldKey] === undefined ?
-        (fields[fieldKey] ? fields[fieldKey].default : null) : this[fieldKey];
-      this[fieldKey] = helper.isArray(this[fieldKey]) ? [] :
-        helper.isObject(this[fieldKey]) ? {} : this[fieldKey];
-      this[fieldKey] = this[fieldKey] === undefined ? null : this[fieldKey];
+      if (model[fields[fieldKey].map] === undefined) {
+        this[fieldKey] = model[fieldKey];
+      } else {
+        this[fieldKey] = model[fields[fieldKey].map];
+      }
+
+      if (this[fieldKey] === undefined && fields[fieldKey]) {
+        if (helper.isArray(fields[fieldKey].default)) {
+          this[fieldKey] = [];
+        } else if (helper.isObject(fields[fieldKey].default)) {
+          this[fieldKey] = {};
+        } else if (fields[fieldKey].default !== undefined) {
+          this[fieldKey] = fields[fieldKey].default;
+        }
+      }
+
+      if (this[fieldKey] === undefined) {
+        this[fieldKey] = null;
+      }
     });
-    
+
     // define REST consumer
     if (!constructor.consumer) {
       Object.defineProperty(constructor, 'consumer', {
@@ -134,8 +146,8 @@ class RestBaseModel {
           );
           addCustomHeaders(request);
           request.exec()
-            .then((response) => { resolve({ response, request: request.xhr })})
-            .catch((response) => { reject({ response, request: request.xhr })});
+            .then((response) => { resolve({ response, request: request.xhr }); })
+            .catch((response) => { reject({ response, request: request.xhr }); });
         } else {
           // otherwise put all fields
           let data = {};
