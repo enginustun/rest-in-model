@@ -8,7 +8,9 @@ const restModelToObject = (restModel, Type) => {
     const fieldKeys = Object.keys(config.fields);
     for (let i = 0; i < fieldKeys.length; i += 1) {
       const fieldKey = fieldKeys[i];
-      newObject[fieldKey] = restModel[config.fields[fieldKey].map || fieldKey];
+      if (restModel[config.fields[fieldKey].map || fieldKey] !== undefined) {
+        newObject[fieldKey] = restModel[config.fields[fieldKey].map || fieldKey];
+      }
     }
   }
   return newObject;
