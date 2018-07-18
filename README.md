@@ -7,39 +7,73 @@ model based REST consumer library.
 `npm install rest-in-model`
 
 ## Usage
-
+### Imports
 ``` javascript
 // full import
 import RestInModel from 'rest-in-model';
 
 // or you can import by destructuring
 import { RestClient, RestBaseModel, settings } from 'rest-in-model';
-
+```
 ### Settings
+##### Endpoint configuration
+``` javascript
 // Add single endpoint
 settings.addEndpoint({ name: 'project', value: 'https://jsonplaceholder.typicode.com/' });
 // Add multiple endpoint. And in this case can be only one default endpoint, otherwise throw error
 settings.addEndpoint([
   {
-    name: 'project',
+    name: 'api',
     value: 'https://jsonplaceholder.typicode.com/',
     default: true,
   },
   {
-    name: 'daa',
-    value: 'https://jsonplaceholder.typicode.com/aaaa',
+    name: 'projects',
+    value: 'https://jsonplaceholder.typicode.com/projects',
   },
 ]);
 
 // set default endpoint uses that cases: if either not given default endpoint or desired to change default endpoint
-settings.setDefaultEndpoint('project');
-
+settings.setDefaultEndpoint('api');
+```
+##### Api Paths configurations
+``` javascript
+// Add single api path
+settings.addApiPath({ name: 'auth', value: '/auth' });
+settings.addApiPath({ name: 'api', value: '/serve' });
+// Add multiple api path. And in this case can be only one default api path, otherwise throw error
+// true
+settings.addApiPath([
+  {
+    name: 'auth',
+    value: '/auth',
+    default: true,
+  },
+  {
+    name: 'api',
+    value: '/serve',
+  },
+]);
+// false
+settings.addApiPath([
+  {
+    name: 'auth',
+    value: '/auth',
+    default: true,
+  },
+  {
+    name: 'api',
+    value: '/serve',
+    default: true, // Not Correct
+  },
+]);
+// set default api path uses that cases: if either not given default api path or desired to change default api path
+settings.setDefaultApiPath('api');
+```
+##### Set constant header configuration for each requests
+``` javascript
 // set additional headers with setHeader method of RestBaseModel
 RestBaseModel.setHeader('Authorization', 'JWT xxxxxxxxxxxxxxxxxxxx...');
-
-// settings.addApiPath({ name: 'auth', value: '/auth' });
-// settings.addApiPath({ name: 'api', value: '/serve' });
-// settings.setDefaultApiPath('api');
 ```
 
 ### Model Definition
