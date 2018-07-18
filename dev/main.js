@@ -35,6 +35,18 @@ module.exports = {
     addApiPath: (apiPath) => {
       if (helper.isObject(apiPath) && apiPath.name && apiPath.value) {
         settings.apiPaths[apiPath.name] = apiPath.value;
+      } else if (helper.isArray(apiPath)) {
+        apiPath.map((item) => {
+          if (item.name && item.value) {
+            settings.apiPaths[item.name] = item.value;
+            if (item.default) {
+              if (settings.defaultApiPath) {
+                throw new Error('There can be only one default api path');
+              }
+              settings.defaultApiPath = item.name;
+            }
+          }
+        });
       } else {
         throw new Error('ApiPaths provided is not valid or its format is wrong. Correct format is { name = "", value = "" }.');
       }
