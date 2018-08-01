@@ -18,7 +18,7 @@ module.exports = {
             pathItem = pathItem.substr(1, pathItemLength - 1);
           }
         }
-        resultPath += ((resultPath.length > 0 && pathItem ? '/' : '') + pathItem);
+        resultPath += (resultPath.length > 0 && pathItem ? '/' : '') + pathItem;
       }
     }
     return resultPath;
@@ -40,11 +40,26 @@ module.exports = {
       const paramKeys = Object.keys(queryParams);
       for (let i = 0; i < paramKeys.length; i += 1) {
         const paramKey = paramKeys[i];
-        if (queryParams[paramKey] !== undefined && queryParams[paramKey] !== null) {
-          newurl += `${(newurl.indexOf('?') === -1 ? '?' : '')}${paramKey}=${queryParams[paramKey]}${(i < paramKeys.length - 1 ? '&' : '')}`;
+        if (
+          queryParams[paramKey] !== undefined &&
+          queryParams[paramKey] !== null
+        ) {
+          newurl += `${newurl.indexOf('?') === -1 ? '?' : ''}${paramKey}=${
+            queryParams[paramKey]
+          }${i < paramKeys.length - 1 ? '&' : ''}`;
         }
       }
     }
     return newurl;
   },
+
+  getFormData: object => {
+    let formData = new FormData();
+    for (const key in object) {
+      if (object.hasOwnProperty(key)) {
+        formData.append(key, object[key]);
+      }
+    }
+    return formData;
+  }
 };
