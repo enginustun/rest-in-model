@@ -73,5 +73,6 @@ module.exports = {
         throw new Error('Default api path name must be provided and its type must be string.');
       }
     },
+    setHeader: settings.setHeader
   },
 };

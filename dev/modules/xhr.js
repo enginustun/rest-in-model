@@ -33,7 +33,7 @@ class XHR {
           }
         }
       };
-      this.xhr.send(JSON.stringify(this.data));
+      this.xhr.send(this.data);
     });
   }
 }

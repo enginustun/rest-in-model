@@ -2,11 +2,29 @@ import settings from './settings';
 import XHR from './xhr';
 import helper from '../common/helper';
 
-const setDefaultHeaders = (request) => {
+const setHeaders = (request, headers) => {
   if (request instanceof XHR) {
     request.setHeader('Accept', settings.headers.accept);
     request.setHeader('Content-Type', settings.headers.contentType);
+    const modelHeaderKeys = Object.keys(headers);
+    for (let i = 0; i < modelHeaderKeys.length; i += 1) {
+      const headerKey = modelHeaderKeys[i];
+      request.setHeader(headerKey, headers[headerKey]);
+    }
   }
+};
+
+const getFormData = (contentType, data) => {
+  let formData = data;
+  if (contentType.toLowerCase().includes('form-data')) {
+    formData = helper.getFormData(data);
+  } else if (contentType.toLowerCase().includes('application/json')) {
+    formData = JSON.stringify(formData);
+  } else if (contentType.toLowerCase().includes('x-www-form-urlencoded')) {
+    formData = helper.appendQueryParamsToUrl('', formData);
+    formData = formData.substr(1, formData.length);
+  }
+  return formData;
 };
 
 class RestClient {
@@ -20,47 +38,39 @@ class RestClient {
     }
   }
 
-  get(service) {
+  sendRequest({ method = 'GET', service, data = null, headers = [] }) {
     const request = new XHR();
-    setDefaultHeaders(request);
-    request.method = 'GET';
-    request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
+    setHeaders(request, headers);
+    request.method = method;
+    request.url = helper.pathJoin(
+      this.settings.endpoint,
+      this.settings.apiPath,
+      service
+    );
+    if (data) {
+      request.data = getFormData(request.headers['Content-Type'], data);
+    }
     return request;
   }
 
-  post(service, data) {
-    const request = new XHR();
-    setDefaultHeaders(request);
-    request.method = 'POST';
-    request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
-    request.data = data;
-    return request;
+  get(service, headers) {
+    return this.sendRequest({ service, headers });
   }
 
-  put(service, data) {
-    const request = new XHR();
-    setDefaultHeaders(request);
-    request.method = 'PUT';
-    request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
-    request.data = data;
-    return request;
+  post(service, data, headers) {
+    return this.sendRequest({ method: 'POST', service, data, headers });
   }
 
-  patch(service, data) {
-    const request = new XHR();
-    setDefaultHeaders(request);
-    request.method = 'PATCH';
-    request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
-    request.data = data;
-    return request;
+  put(service, data, headers) {
+    return this.sendRequest({ method: 'PUT', service, data, headers });
   }
 
-  delete(service) {
-    const request = new XHR();
-    setDefaultHeaders(request);
-    request.method = 'DELETE';
-    request.url = helper.pathJoin(this.settings.endpoint, this.settings.apiPath, service);
-    return request;
+  patch(service, data, headers) {
+    return this.sendRequest({ method: 'PATCH', service, data, headers });
+  }
+
+  delete(service, headers) {
+    return this.sendRequest({ method: 'DELETE', service, headers });
   }
 }
 
