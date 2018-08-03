@@ -22,9 +22,14 @@ class XHR {
       this.xhr.onreadystatechange = () => {
         if (this.xhr.readyState === 4) {
           if (this.xhr.status >= 200 && this.xhr.status < 300) {
-            // we get the returned data
-            let data = {};
-            if (this.xhr.responseText) {
+            let data = this.xhr.responseText;
+            const contentType = (
+              this.xhr.getResponseHeader('Content-Type') || ''
+            ).toLowerCase();
+            if (
+              this.xhr.responseText &&
+              contentType.includes('application/json')
+            ) {
               data = JSON.parse(this.xhr.responseText);
             }
             resolve(data);
