@@ -121,16 +121,20 @@ class RestBaseModel {
             data,
             settings.modelHeaders[constructor.name] || {}
           );
-          request
-            .exec()
-            .then(response => {
-              this[config.idField] =
-                response[config.fields[config.idField].map || config.idField];
-              resolve({ response, request: request.xhr });
-            })
-            .catch(response => {
-              reject({ response, request: request.xhr });
-            });
+          if (opt.generateOnly) {
+            resolve({ requestURL: request.url });
+          } else {
+            request
+              .exec()
+              .then(response => {
+                this[config.idField] =
+                  response[config.fields[config.idField].map || config.idField];
+                resolve({ response, request: request.xhr });
+              })
+              .catch(response => {
+                reject({ response, request: request.xhr });
+              });
+          }
         } else if (opt.updateMethod === 'patch') {
           // if there is 'patch' attribute in option, only patch these fields
           let data = {};
@@ -148,14 +152,18 @@ class RestBaseModel {
             data,
             settings.modelHeaders[constructor.name] || {}
           );
-          request
-            .exec()
-            .then(response => {
-              resolve({ response, request: request.xhr });
-            })
-            .catch(response => {
-              reject({ response, request: request.xhr });
-            });
+          if (opt.generateOnly) {
+            resolve({ requestURL: request.url });
+          } else {
+            request
+              .exec()
+              .then(response => {
+                resolve({ response, request: request.xhr });
+              })
+              .catch(response => {
+                reject({ response, request: request.xhr });
+              });
+          }
         } else {
           // otherwise put all fields
           let data = {};
@@ -174,14 +182,18 @@ class RestBaseModel {
             data,
             settings.modelHeaders[constructor.name] || {}
           );
-          request
-            .exec()
-            .then(response => {
-              resolve({ response, request: request.xhr });
-            })
-            .catch(response => {
-              reject({ response, request: request.xhr });
-            });
+          if (opt.generateOnly) {
+            resolve({ requestURL: request.url });
+          } else {
+            request
+              .exec()
+              .then(response => {
+                resolve({ response, request: request.xhr });
+              })
+              .catch(response => {
+                reject({ response, request: request.xhr });
+              });
+          }
         }
       }
     });
@@ -209,16 +221,20 @@ class RestBaseModel {
             objectToRestModel(opt.model),
             settings.modelHeaders[this.name] || {}
           );
-          request
-            .exec()
-            .then(response => {
-              opt.model[config.idField] =
-                response[config.fields[config.idField].map || config.idField];
-              resolve({ response, request: request.xhr });
-            })
-            .catch(response => {
-              reject({ response, request: request.xhr });
-            });
+          if (opt.generateOnly) {
+            resolve({ requestURL: request.url });
+          } else {
+            request
+              .exec()
+              .then(response => {
+                opt.model[config.idField] =
+                  response[config.fields[config.idField].map || config.idField];
+                resolve({ response, request: request.xhr });
+              })
+              .catch(response => {
+                reject({ response, request: request.xhr });
+              });
+          }
         } else if (helper.isArray(opt.patch)) {
           // if there is 'patch' attribute in option, only patch these fields
           const patchData = {};
@@ -232,14 +248,18 @@ class RestBaseModel {
             patchData,
             settings.modelHeaders[this.name] || {}
           );
-          request
-            .exec()
-            .then(response => {
-              resolve({ response, request: request.xhr });
-            })
-            .catch(response => {
-              reject({ response, request: request.xhr });
-            });
+          if (opt.generateOnly) {
+            resolve({ requestURL: request.url });
+          } else {
+            request
+              .exec()
+              .then(response => {
+                resolve({ response, request: request.xhr });
+              })
+              .catch(response => {
+                reject({ response, request: request.xhr });
+              });
+          }
         } else {
           // otherwise put all fields
           const putData = {};
@@ -254,14 +274,18 @@ class RestBaseModel {
             putData,
             settings.modelHeaders[this.name] || {}
           );
-          request
-            .exec()
-            .then(response => {
-              resolve({ response, request: request.xhr });
-            })
-            .catch(response => {
-              reject({ response, request: request.xhr });
-            });
+          if (opt.generateOnly) {
+            resolve({ requestURL: request.url });
+          } else {
+            request
+              .exec()
+              .then(response => {
+                resolve({ response, request: request.xhr });
+              })
+              .catch(response => {
+                reject({ response, request: request.xhr });
+              });
+          }
         }
       }
     });
@@ -293,20 +317,27 @@ class RestBaseModel {
             resultPath,
             settings.modelHeaders[this.name] || {}
           );
-          request
-            .exec()
-            .then(response => {
-              const model = restModelToObject(
-                opt.resultField && response[opt.resultField]
-                  ? response[opt.resultField]
-                  : response,
-                this
-              );
-              resolve({ model, response, request: request.xhr });
-            })
-            .catch(response => {
-              reject({ response, request: request.xhr });
-            });
+          if (opt.generateOnly) {
+            resolve({ requestURL: request.url });
+          } else {
+            request
+              .exec()
+              .then(response => {
+                let model;
+                if (helper.isObject(response)) {
+                  model = restModelToObject(
+                    opt.resultField && response[opt.resultField]
+                      ? response[opt.resultField]
+                      : response,
+                    this
+                  );
+                }
+                resolve({ model, response, request: request.xhr });
+              })
+              .catch(response => {
+                reject({ response, request: request.xhr });
+              });
+          }
         } else {
           reject(
             new Error(
@@ -341,39 +372,47 @@ class RestBaseModel {
           resultPath,
           settings.modelHeaders[this.name] || {}
         );
-        request
-          .exec()
-          .then(response => {
-            if (!helper.isArray(opt.resultList)) {
-              opt.resultList = [];
-            }
-            const list =
-              opt.resultListField &&
-              helper.isArray(response[opt.resultListField])
-                ? response[opt.resultListField]
-                : response;
-            opt.resultList.length = 0;
-            for (let i = 0; i < list.length; i += 1) {
-              const item = list[i];
-              opt.resultList.push(
-                restModelToObject(
-                  item,
-                  opt.resultListItemType &&
-                  opt.resultListItemType.prototype instanceof RestBaseModel
-                    ? opt.resultListItemType
-                    : this
-                )
-              );
-            }
-            resolve({
-              resultList: opt.resultList,
-              response,
-              request: request.xhr
+        if (opt.generateOnly) {
+          resolve({ requestURL: request.url });
+        } else {
+          request
+            .exec()
+            .then(response => {
+              if (!helper.isArray(opt.resultList)) {
+                opt.resultList = [];
+              }
+              const list =
+                opt.resultListField &&
+                helper.isArray(response[opt.resultListField])
+                  ? response[opt.resultListField]
+                  : response;
+              opt.resultList.length = 0;
+              if (helper.isArray(list)) {
+                for (let i = 0; i < list.length; i += 1) {
+                  const item = list[i];
+                  helper.isObject(item) &&
+                    opt.resultList.push(
+                      restModelToObject(
+                        item,
+                        opt.resultListItemType &&
+                        opt.resultListItemType.prototype instanceof
+                          RestBaseModel
+                          ? opt.resultListItemType
+                          : this
+                      )
+                    );
+                }
+              }
+              resolve({
+                resultList: opt.resultList,
+                response,
+                request: request.xhr
+              });
+            })
+            .catch(response => {
+              reject({ response, request: request.xhr });
             });
-          })
-          .catch(response => {
-            reject({ response, request: request.xhr });
-          });
+        }
       }
     });
   }
@@ -393,14 +432,18 @@ class RestBaseModel {
             helper.pathJoin(config.paths[path], id),
             settings.modelHeaders[constructor.name] || {}
           );
-          request
-            .exec()
-            .then(response => {
-              resolve({ response, request: request.xhr });
-            })
-            .catch(response => {
-              reject({ response, request: request.xhr });
-            });
+          if (opt.generateOnly) {
+            resolve({ requestURL: request.url });
+          } else {
+            request
+              .exec()
+              .then(response => {
+                resolve({ response, request: request.xhr });
+              })
+              .catch(response => {
+                reject({ response, request: request.xhr });
+              });
+          }
         } else {
           reject(
             new Error(
@@ -426,14 +469,18 @@ class RestBaseModel {
             helper.pathJoin(config.paths[path], id),
             settings.modelHeaders[this.name] || {}
           );
-          request
-            .exec()
-            .then(response => {
-              resolve({ response, request: request.xhr });
-            })
-            .catch(response => {
-              reject({ response, request: request.xhr });
-            });
+          if (opt.generateOnly) {
+            resolve({ requestURL: request.url });
+          } else {
+            request
+              .exec()
+              .then(response => {
+                resolve({ response, request: request.xhr });
+              })
+              .catch(response => {
+                reject({ response, request: request.xhr });
+              });
+          }
         } else {
           reject(
             new Error(
