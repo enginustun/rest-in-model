@@ -4,23 +4,26 @@ import helper from '../common/helper';
 
 const setHeaders = (request, headers) => {
   if (request instanceof XHR) {
-    request.setHeader('Accept', settings.headers.accept);
-    request.setHeader('Content-Type', settings.headers.contentType);
     const modelHeaderKeys = Object.keys(headers);
     for (let i = 0; i < modelHeaderKeys.length; i += 1) {
       const headerKey = modelHeaderKeys[i];
-      request.setHeader(headerKey, headers[headerKey]);
+      if (
+        headerKey.toLowerCase() !== 'content-type' ||
+        !headers[headerKey].toLowerCase().includes('form-data')
+      ) {
+        request.setHeader(headerKey, headers[headerKey]);
+      }
     }
   }
 };
 
 const getFormData = (contentType, data) => {
   let formData = data;
-  if (contentType.toLowerCase().includes('form-data')) {
+  if (contentType.includes('form-data')) {
     formData = helper.getFormData(data);
-  } else if (contentType.toLowerCase().includes('application/json')) {
+  } else if (contentType.includes('application/json')) {
     formData = JSON.stringify(formData);
-  } else if (contentType.toLowerCase().includes('x-www-form-urlencoded')) {
+  } else if (contentType.includes('x-www-form-urlencoded')) {
     formData = helper.appendQueryParamsToUrl('', formData);
     formData = formData.substr(1, formData.length);
   }
@@ -38,7 +41,15 @@ class RestClient {
     }
   }
 
-  sendRequest({ method = 'GET', service, data = null, headers = [] }) {
+  sendRequest({ method = 'GET', service, data = null, headers = {} }) {
+    if (
+      !headers['Content-Type'] &&
+      !headers['content-Type'] &&
+      !headers['content-type'] &&
+      !headers['contentType']
+    ) {
+      headers['Content-Type'] = settings.headers.contentType;
+    }
     const request = new XHR();
     setHeaders(request, headers);
     request.method = method;
@@ -48,7 +59,10 @@ class RestClient {
       service
     );
     if (data) {
-      request.data = getFormData(request.headers['Content-Type'], data);
+      request.data = getFormData(
+        (headers['Content-Type'] || '').toLowerCase(),
+        data
+      );
     }
     return request;
   }
