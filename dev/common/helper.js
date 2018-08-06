@@ -3,6 +3,8 @@ module.exports = {
 
   isArray: val => Object.prototype.toString.call(val) === '[object Array]',
 
+  isFunction: val => Object.prototype.toString.call(val) === '[object Function]',
+
   pathJoin: (...paths) => {
     const pathArray = Array.prototype.slice.call(paths);
     let resultPath = '';
