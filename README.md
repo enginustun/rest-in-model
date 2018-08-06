@@ -282,7 +282,7 @@ User.get({ id: 2 }).then(({ model, response }) => {
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
 |resultList(optional)|array object that will be filled models into it|`[]` reference|-|
-|resultListField(optional)|for string: if the response is an object, result list will be converted based on this name from the response. if this property is not provided or 'response[resultListField]' is not an array, the response will be assumed as model list itself and result will be converted from the response directly. <br /> <br /> for function: you can return any of child/sub-child of given response object.|`string|(response) => response.what.you.need`|-|
+|resultListField(optional)|for string: if the response is an object, result list will be converted based on this name from the response. if this property is not provided or 'response[resultListField]' is not an array, the response will be assumed as model list itself and result will be converted from the response directly. <br /> <br /> for function: you can return any of child/sub-child of given response object.|`string\|(response) => response.what.you.need`|-|
 |resultListItemType(optional)|it needs to be provided if the result type is different from class type itself.|a model class that is inherited from 'RestBaseModel'|itself|
 |endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
 |apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
