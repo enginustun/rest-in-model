@@ -381,11 +381,16 @@ class RestBaseModel {
               if (!helper.isArray(opt.resultList)) {
                 opt.resultList = [];
               }
-              const list =
-                opt.resultListField &&
-                helper.isArray(response[opt.resultListField])
-                  ? response[opt.resultListField]
-                  : response;
+              let list;
+              if (helper.isFunction(opt.resultListField)) {
+                list = opt.resultListField(response);
+              } else {
+                list =
+                  opt.resultListField &&
+                  helper.isArray(response[opt.resultListField])
+                    ? response[opt.resultListField]
+                    : response;
+              }
               opt.resultList.length = 0;
               if (helper.isArray(list)) {
                 for (let i = 0; i < list.length; i += 1) {
