@@ -33,7 +33,7 @@ const objectToRestModel = model => {
 
 const consumerOptions = (opt, config) => ({
   endpointName: opt.endpointName || config.endpointName,
-  apiPathName: opt.apiPathName || config.apiPathName
+  apiPathName: opt.apiPathName || config.apiPathName,
 });
 
 class RestBaseModel {
@@ -69,7 +69,7 @@ class RestBaseModel {
     if (!constructor.consumer) {
       Object.defineProperty(constructor, 'consumer', {
         value: new RestClient(consumerOptions({}, config)),
-        writable: true
+        writable: true,
       });
     }
   }
@@ -411,7 +411,7 @@ class RestBaseModel {
               resolve({
                 resultList: opt.resultList,
                 response,
-                request: request.xhr
+                request: request.xhr,
               });
             })
             .catch(response => {
