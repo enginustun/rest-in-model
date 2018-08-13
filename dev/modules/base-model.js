@@ -1,10 +1,9 @@
 import RestClient from './rest-client';
 import helper from '../common/helper';
-import settings from './settings';
 
 const restModelToObject = (restModel, Type) => {
   const newObject = new Type();
-  const config = Type[`${Type.name}_config`];
+  const config = newObject.getConfig();
   if (helper.isObject(config.fields)) {
     const fieldKeys = Object.keys(config.fields);
     for (let i = 0; i < fieldKeys.length; i += 1) {
@@ -20,7 +19,7 @@ const restModelToObject = (restModel, Type) => {
 
 const objectToRestModel = model => {
   const restModel = {};
-  const config = model.constructor[`${model.constructor.name}_config`];
+  const config = model.getConfig();
   if (helper.isObject(config.fields)) {
     const fieldKeys = Object.keys(config.fields);
     for (let i = 0; i < fieldKeys.length; i += 1) {
@@ -31,16 +30,16 @@ const objectToRestModel = model => {
   return restModel;
 };
 
-const consumerOptions = (opt, config) => ({
+const getConsumerOptions = (opt, config) => ({
   endpointName: opt.endpointName || config.endpointName,
-  apiPathName: opt.apiPathName || config.apiPathName
+  apiPathName: opt.apiPathName || config.apiPathName,
 });
 
 class RestBaseModel {
   constructor(_model) {
     const model = _model || {};
     const { constructor } = this;
-    const config = RestBaseModel[`${constructor.name}_config`];
+    const config = this.getConfig();
     const { fields } = config;
 
     Object.keys(fields).map(fieldKey => {
@@ -68,36 +67,35 @@ class RestBaseModel {
     // define REST consumer
     if (!constructor.consumer) {
       Object.defineProperty(constructor, 'consumer', {
-        value: new RestClient(consumerOptions({}, config)),
-        writable: true
+        value: new RestClient(getConsumerOptions({}, config)),
+        writable: true,
       });
     }
   }
 
-  static setConfig(name, value) {
-    RestBaseModel[`${this.name}_config`] =
-      RestBaseModel[`${this.name}_config`] || {};
-    RestBaseModel[`${this.name}_config`][name] = value;
+  getConfig() {
+    return {
+      fields: {},
+    };
   }
 
-  static getConfig(name) {
-    RestBaseModel[`${this.name}_config`] =
-      RestBaseModel[`${this.name}_config`] || {};
-    return RestBaseModel[`${this.name}_config`][name];
-  }
-
-  static setHeader(name, value) {
-    settings.modelHeaders[this.name] = settings.modelHeaders[this.name] || {};
-    settings.modelHeaders[this.name][name] = value;
+  getIdField() {
+    const config = this.getConfig();
+    if (!config.hasOwnProperty('idField')) {
+      const { fields } = config;
+      config.idField = Object.keys(fields).find(fieldKey => {
+        return fields[fieldKey].primary;
+      });
+    }
+    return config.idField;
   }
 
   save(options) {
-    const { constructor } = this;
-    const config = RestBaseModel[`${constructor.name}_config`];
+    const config = this.getConfig();
     const { fields } = config;
     const opt = options || {};
-    const id = this[config.idField];
-    const consumer = new RestClient(consumerOptions(opt, config));
+    const id = this[this.getIdField()];
+    const consumer = new RestClient(getConsumerOptions(opt, config));
     const path = opt.path || 'default';
 
     return new Promise((resolve, reject) => {
@@ -119,7 +117,7 @@ class RestBaseModel {
           request = consumer.post(
             config.paths[path],
             data,
-            settings.modelHeaders[constructor.name] || {}
+            config.headers || {}
           );
           if (opt.generateOnly) {
             resolve({ requestURL: request.url });
@@ -150,7 +148,7 @@ class RestBaseModel {
           request = consumer.patch(
             helper.pathJoin(config.paths[path], id),
             data,
-            settings.modelHeaders[constructor.name] || {}
+            config.headers || {}
           );
           if (opt.generateOnly) {
             resolve({ requestURL: request.url });
@@ -180,7 +178,7 @@ class RestBaseModel {
           request = consumer.put(
             helper.pathJoin(config.paths[path], id),
             data,
-            settings.modelHeaders[constructor.name] || {}
+            config.headers || {}
           );
           if (opt.generateOnly) {
             resolve({ requestURL: request.url });
@@ -200,16 +198,16 @@ class RestBaseModel {
   }
 
   static save(options) {
-    const config = RestBaseModel[`${this.name}_config`];
+    const config = this.prototype.getConfig();
     const opt = options || {};
     const { fields } = config;
-    const consumer = new RestClient(consumerOptions(opt, config));
+    const consumer = new RestClient(getConsumerOptions(opt, config));
     const path = opt.path || 'default';
 
     if (!(opt.model instanceof this)) {
-      throw Error('model must be provided as option parameter');
+      throw Error('model must be instance of RestBaseModel');
     }
-    const id = opt.model[config.idField];
+    const id = opt.model[this.prototype.getIdField()];
 
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestClient) {
@@ -219,7 +217,7 @@ class RestBaseModel {
           request = consumer.post(
             config.paths[path],
             objectToRestModel(opt.model),
-            settings.modelHeaders[this.name] || {}
+            config.headers || {}
           );
           if (opt.generateOnly) {
             resolve({ requestURL: request.url });
@@ -246,7 +244,7 @@ class RestBaseModel {
           request = consumer.patch(
             helper.pathJoin(config.paths[path], id),
             patchData,
-            settings.modelHeaders[this.name] || {}
+            config.headers || {}
           );
           if (opt.generateOnly) {
             resolve({ requestURL: request.url });
@@ -272,7 +270,7 @@ class RestBaseModel {
           request = consumer.put(
             helper.pathJoin(config.paths[path], id),
             putData,
-            settings.modelHeaders[this.name] || {}
+            config.headers || {}
           );
           if (opt.generateOnly) {
             resolve({ requestURL: request.url });
@@ -293,66 +291,57 @@ class RestBaseModel {
 
   static get(options) {
     const opt = options || {};
-    const config = RestBaseModel[`${this.name}_config`];
+    const config = this.prototype.getConfig();
     const { id } = opt;
-    const consumer = new RestClient(consumerOptions(opt, config));
+    const consumer = new RestClient(getConsumerOptions(opt, config));
     const path = opt.path || 'default';
     opt.pathData = opt.pathData || {};
 
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestClient) {
+        let resultPath = config.paths[path];
         if (id) {
           // if there is no pathData.id it should be set
           opt.pathData.id = opt.pathData.id || id;
-          let resultPath = config.paths[path];
           if (path === 'default') {
             resultPath = helper.pathJoin(config.paths[path], '{id}');
           }
-          // replace url parameters and append query parameters
-          resultPath = helper.appendQueryParamsToUrl(
-            helper.replaceUrlParamsWithValues(resultPath, opt.pathData),
-            opt.queryParams
-          );
-          const request = consumer.get(
-            resultPath,
-            settings.modelHeaders[this.name] || {}
-          );
-          if (opt.generateOnly) {
-            resolve({ requestURL: request.url });
-          } else {
-            request
-              .exec()
-              .then(response => {
-                let model;
-                if (helper.isObject(response)) {
-                  model = restModelToObject(
-                    opt.resultField && response[opt.resultField]
-                      ? response[opt.resultField]
-                      : response,
-                    this
-                  );
-                }
-                resolve({ model, response, request: request.xhr });
-              })
-              .catch(response => {
-                reject({ response, request: request.xhr });
-              });
-          }
+        }
+        // replace url parameters and append query parameters
+        resultPath = helper.appendQueryParamsToUrl(
+          helper.replaceUrlParamsWithValues(resultPath, opt.pathData),
+          opt.queryParams
+        );
+        const request = consumer.get(resultPath, config.headers || {});
+        if (opt.generateOnly) {
+          resolve({ requestURL: request.url });
         } else {
-          reject(
-            new Error(
-              "id parameter must be provided in options or object's id field must be set before calling this method."
-            )
-          );
+          request
+            .exec()
+            .then(response => {
+              let model;
+              if (helper.isObject(response)) {
+                model = restModelToObject(
+                  opt.resultField && response[opt.resultField]
+                    ? response[opt.resultField]
+                    : response,
+                  this
+                );
+              }
+              resolve({ model, response, request: request.xhr });
+            })
+            .catch(response => {
+              reject({ response, request: request.xhr });
+            });
         }
       }
     });
   }
 
   static all(options) {
-    const config = RestBaseModel[`${this.name}_config`];
+    const config = this.prototype.getConfig();
     const opt = options || {};
-    const consumer = new RestClient(consumerOptions(opt, config));
+    const consumer = new RestClient(getConsumerOptions(opt, config));
     const path = opt.path || 'default';
     opt.pathData = opt.pathData || {};
     opt.resultListField = opt.resultListField || config.resultListField;
@@ -368,10 +357,7 @@ class RestBaseModel {
           helper.replaceUrlParamsWithValues(resultPath, opt.pathData),
           opt.queryParams
         );
-        const request = consumer.get(
-          resultPath,
-          settings.modelHeaders[this.name] || {}
-        );
+        const request = consumer.get(resultPath, config.headers || {});
         if (opt.generateOnly) {
           resolve({ requestURL: request.url });
         } else {
@@ -411,7 +397,7 @@ class RestBaseModel {
               resolve({
                 resultList: opt.resultList,
                 response,
-                request: request.xhr
+                request: request.xhr,
               });
             })
             .catch(response => {
@@ -423,11 +409,10 @@ class RestBaseModel {
   }
 
   delete(options) {
-    const { constructor } = this;
-    const config = RestBaseModel[`${constructor.name}_config`];
+    const config = this.getConfig();
     const opt = options || {};
-    const id = opt.id || this[config.idField];
-    const consumer = new RestClient(consumerOptions(opt, config));
+    const id = opt.id || this[this.getIdField()];
+    const consumer = new RestClient(getConsumerOptions(opt, config));
     const path = opt.path || 'default';
 
     return new Promise((resolve, reject) => {
@@ -435,7 +420,7 @@ class RestBaseModel {
         if (id) {
           const request = consumer.delete(
             helper.pathJoin(config.paths[path], id),
-            settings.modelHeaders[constructor.name] || {}
+            config.headers || {}
           );
           if (opt.generateOnly) {
             resolve({ requestURL: request.url });
@@ -461,10 +446,10 @@ class RestBaseModel {
   }
 
   static delete(options) {
-    const config = RestBaseModel[`${this.name}_config`];
+    const config = this.prototype.getConfig();
     const opt = options || {};
     const { id } = opt;
-    const consumer = new RestClient(consumerOptions(opt, config));
+    const consumer = new RestClient(getConsumerOptions(opt, config));
     const path = opt.path || 'default';
 
     return new Promise((resolve, reject) => {
@@ -472,7 +457,7 @@ class RestBaseModel {
         if (id) {
           const request = consumer.delete(
             helper.pathJoin(config.paths[path], id),
-            settings.modelHeaders[this.name] || {}
+            config.headers || {}
           );
           if (opt.generateOnly) {
             resolve({ requestURL: request.url });

@@ -83,30 +83,34 @@ RestBaseModel.setHeader('Authorization', 'JWT xxxxxxxxxxxxxxxxxxxx...');
 ``` javascript
 import { RestBaseModel } from 'rest-in-model';
 
-class User extends RestBaseModel { }
+class User extends RestBaseModel {
+  getConfig() {
+    return {
+      fields: {
+        id: { primary: true },
+        name: {},
+        username: { /*map: 'user_name'*/ },
+        email: {},
+        company: {},
+        phone: { /*default: null*/ },
+        website: {},
+        address: {}
+      }
 
-User.setConfig('idField', 'id');
-User.setConfig('fields', {
-  id: {},
-  name: {},
-  username: { /*map: 'user_name'*/ },
-  email: {},
-  company: {},
-  phone: { /*default: null*/ },
-  website: {},
-  address: {}
-});
+      // Normally you don't need to do this. But sometimes back-end doesn't/can't give what you want... 
+      // You can get any child from response as result list to convert if you need.
+      resultListField: (response) => response.result.contents,
 
-// Normally you don't need to do this. But sometimes back-end doesn't/can't give what you want... 
-// You can get any child from response as result list to convert if you need.
-User.setConfig('resultListField', (response) => response.result.contents);
+      paths: {
+        default: 'users',
+        posts: 'users/{userId}/posts'
+      },
 
-User.setConfig('paths', {
-  default: 'users',
-  posts: 'users/{userId}/posts'
-});
-// User.setConfig('endpointName', '');
-// User.setConfig('apiPathName', '');
+      //endpointName: '',
+      //apiPathName: '',
+    };
+  }
+}
 
 module.exports = User;
 ```
@@ -116,21 +120,26 @@ module.exports = User;
 ``` javascript
 import { RestBaseModel } from 'rest-in-model';
 
-class Post extends RestBaseModel { }
+class Post extends RestBaseModel {
+  getConfig() {
+    return {
+      fields: {
+        id: { primary: true },
+        title: {},
+        body: {},
+        userId: {}
+      },
 
-Post.setConfig('idField', 'id');
-Post.setConfig('fields', {
-  id: {},
-  title: {},
-  body: {},
-  userId: {}
-});
-Post.setConfig('paths', {
-  default: 'posts',
-  userPosts: 'users/{userId}/posts'
-});
-// Post.setConfig('endpointName', '');
-// Post.setConfig('apiPathName', '');
+      paths: {
+        default: 'posts',
+        userPosts: 'users/{userId}/posts'
+      },
+
+      //endpointName: '',
+      //apiPathName: '',
+    }
+  }
+}
 
 module.exports = Post;
 ```
