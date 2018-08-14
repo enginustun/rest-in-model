@@ -166,15 +166,12 @@ User.all(options);
 
 **userInstance.save(options);**
 
-`options: { endpointName, apiPathName, path, dataKeys }`
+`options: { path, patch }`
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
-|endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
-|apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
-|dataKeys(optional)|array of model fields that need to be updated with patch/put request|`string[]`|-|
-|updateMethod(optional)|patch or put|`string`|put|
+|patch(optional)|array of model fields that need to be updated with patch request|`string[]`|-|
 
 ```javascript
 userInstance.save(); // userInstance.id === undefined
@@ -190,13 +187,11 @@ userInstance.save({ patch: ['name', 'lastname'] }); // userInstance.id !== undef
 ---
 **userInstance.delete(options);**
 
-`options: { id, endpointName, apiPathName, path }`
+`options: { id, path }`
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
 |id(optional)|optional id parameter of model will be deleted. if it is not provided, it will be got from model|`number\|string`|-|
-|endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
-|apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
 
 ``` javascript
@@ -210,16 +205,13 @@ userInstance.delete({ id: 4 }); // userInstance.id doesn't matter
 ---
 **User.save(options);**
 
-`options: { model, endpointName, apiPathName, path, patch }`
+`options: { model, path, patch }`
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
 |model(required)|instance of Model extended from RestBaseModel|`instance of RestBaseModel`|-|
-|endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
-|apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
-|dataKeys(optional)|array of model fields that need to be updated with patch/put request|`string[]`|-|
-|updateMethod(optional)|patch or put|`string`|put|
+|patch(optional)|array of model fields that need to be updated with patch request|`string[]`|-|
 
 ``` javascript
 const userInstance = new User({
@@ -242,13 +234,11 @@ User.save({ model: userInstance }).then((response) => {
 ---
 **User.delete(options);**
 
-`options: { id, endpointName, apiPathName, path }`
+`options: { id, path }`
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
 |id(required)|required id parameter of model will be deleted. if it is not provided, there will be an error thrown|`number\|string`|-|
-|endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
-|apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
 
 ``` javascript
@@ -261,15 +251,15 @@ User.delete({ id: 4 });
 ---
 **User.get(options);**
 
-`options: { id, endpointName, apiPathName, path, pathData }`
+`options: { id, path, pathData, queryParams }`
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
 |id(required)|required id parameter of model will be requested from server. if it is not provided, there will be an error thrown|`number\|string`|-|
-|endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
-|apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
+|resultField(optional)|**Better to define as config in model class for related field(s)** <br/><br/> for string: if the response is an object, result will be converted based on this name from the response. if this property is not provided or 'response[resultField]' is a falsy value, the response will be assumed as model itself and result will be converted from the response directly. <br /> <br /> for function: you can return any of child/sub-child of given response object.|`string\|(response) => response.what.you.need`|-|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
 |pathData(optional)|object that contains values of variables in path specified|`object`|-|
+|queryParams(optional)|object that contains keys and values of query parameters|`object`|-|
 
 ``` javascript
 User.get(); // throws an error
@@ -286,15 +276,13 @@ User.get({ id: 2 }).then(({ model, response }) => {
 ---
 **User.all(options);**
 
-`options: { resultList, resultListField, resultListItemType, endpointName, apiPathName, path, pathData, queryParams }`
+`options: { resultList, resultListField, resultListItemType, path, pathData, queryParams }`
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
 |resultList(optional)|array object that will be filled models into it|`[]` reference|-|
-|resultListField(optional)|for string: if the response is an object, result list will be converted based on this name from the response. if this property is not provided or 'response[resultListField]' is not an array, the response will be assumed as model list itself and result will be converted from the response directly. <br /> <br /> for function: you can return any of child/sub-child of given response object.|`string\|(response) => response.what.you.need`|-|
+|resultListField(optional)|**Better to define as config in model class for related field(s)** <br/><br/> for string: if the response is an object, result list will be converted based on this name from the response. if this property is not provided or 'response[resultListField]' is not an array, the response will be assumed as model list itself and result will be converted from the response directly. <br /> <br /> for function: you can return any of child/sub-child of given response object.|`string\|(response) => response.what.you.need`|-|
 |resultListItemType(optional)|it needs to be provided if the result type is different from class type itself.|a model class that is inherited from 'RestBaseModel'|itself|
-|endpointName(optional)|one of the endpoint attribute name added to settings|`string`|default|
-|apiPathName(optional)|one of the apiPath attribute name added to settings|`string`|default|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
 |pathData(optional)|object that contains values of variables in path specified|`object`|-|
 |queryParams(optional)|object that contains keys and values of query parameters|`object`|-|
