@@ -15,12 +15,11 @@ const config = {
     umdNamedDefine: true,
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js?/,
         include: APP_DIR,
-        loader: 'babel-loader',
-        query: { plugins: ['transform-object-rest-spread'] },
+        use: 'babel-loader',
       },
     ],
   },

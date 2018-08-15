@@ -5,8 +5,8 @@
   "main": "dist/rest-in-model.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --progress",
-    "build:prod": "webpack -p --progress"
+    "build": "webpack --progress --mode=development",
+    "build:prod": "webpack --progress --mode=production"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,7 @@
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.16.0",
     "eslint-plugin-import": "^2.8.0",
-    "webpack": "^3.10.0"
+    "webpack": "^4.16.5",
+    "webpack-cli": "^3.1.0"
   }
 }
