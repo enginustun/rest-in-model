@@ -20,6 +20,7 @@ const config = {
         test: /\.js?/,
         include: APP_DIR,
         loader: 'babel-loader',
+        query: { plugins: ['transform-object-rest-spread'] },
       },
     ],
   },

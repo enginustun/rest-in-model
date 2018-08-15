@@ -63,6 +63,8 @@ class RestClient {
         (headers['Content-Type'] || '').toLowerCase(),
         data
       );
+    } else {
+      delete request.data;
     }
     return request;
   }
@@ -83,8 +85,8 @@ class RestClient {
     return this.sendRequest({ method: 'PATCH', service, data, headers });
   }
 
-  delete(service, headers) {
-    return this.sendRequest({ method: 'DELETE', service, headers });
+  delete(service, data, headers) {
+    return this.sendRequest({ method: 'DELETE', service, data, headers });
   }
 }
 

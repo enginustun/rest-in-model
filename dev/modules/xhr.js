@@ -34,7 +34,11 @@ class XHR {
             }
             resolve(data);
           } else {
-            reject(new Error(this.xhr.statusText));
+            try {
+              reject(JSON.parse(this.xhr.responseText || this.xhr.statusText));
+            } catch (error) {
+              reject(new Error(this.xhr.statusText));
+            }
           }
         }
       };

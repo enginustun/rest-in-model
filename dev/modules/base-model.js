@@ -20,12 +20,10 @@ const restModelToObject = (restModel, Type) => {
 const objectToRestModel = model => {
   const restModel = {};
   const config = model.getConfig();
-  if (helper.isObject(config.fields)) {
-    const fieldKeys = Object.keys(config.fields);
-    for (let i = 0; i < fieldKeys.length; i += 1) {
-      const fieldKey = fieldKeys[i];
-      restModel[config.fields[fieldKey].map || fieldKey] = model[fieldKey];
-    }
+  const fieldKeys = Object.keys(model);
+  for (let i = 0; i < fieldKeys.length; i += 1) {
+    const fieldKey = fieldKeys[i];
+    restModel[config.fields[fieldKey].map || fieldKey] = model[fieldKey];
   }
   return restModel;
 };
@@ -81,209 +79,74 @@ class RestBaseModel {
 
   getIdField() {
     const config = this.getConfig();
-    if (!config.hasOwnProperty('idField')) {
+    if (!this.hasOwnProperty('_idField')) {
       const { fields } = config;
-      config.idField = Object.keys(fields).find(fieldKey => {
-        return fields[fieldKey].primary;
+      Object.defineProperty(this, '_idField', {
+        value: Object.keys(fields).find(fieldKey => {
+          return fields[fieldKey].primary;
+        }),
+        enumerable: false,
+        configurable: false,
+        writable: false,
       });
     }
-    return config.idField;
+    return this._idField;
   }
 
   save(options) {
-    const config = this.getConfig();
-    const { fields } = config;
-    const opt = options || {};
-    const id = this[this.getIdField()];
-    const consumer = new RestClient(getConsumerOptions(opt, config));
-    const path = opt.path || 'default';
-
-    return new Promise((resolve, reject) => {
-      if (consumer instanceof RestClient) {
-        // if there is no id, then post and save it
-        let request;
-        if (!id) {
-          let data = {};
-          const convertedModel = objectToRestModel(this);
-          if (helper.isArray(opt.dataKeys)) {
-            for (let i = 0; i < opt.dataKeys.length; i += 1) {
-              const key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
-              data[key] = convertedModel[key];
-            }
-          } else {
-            data = convertedModel;
-          }
-          delete data[config.idField];
-          request = consumer.post(
-            config.paths[path],
-            data,
-            config.headers || {}
-          );
-          if (opt.generateOnly) {
-            resolve({ requestURL: request.url });
-          } else {
-            request
-              .exec()
-              .then(response => {
-                this[config.idField] =
-                  response[config.fields[config.idField].map || config.idField];
-                resolve({ response, request: request.xhr });
-              })
-              .catch(response => {
-                reject({ response, request: request.xhr });
-              });
-          }
-        } else if (opt.updateMethod === 'patch') {
-          // if there is 'patch' attribute in option, only patch these fields
-          let data = {};
-          const convertedModel = objectToRestModel(this);
-          if (helper.isArray(opt.dataKeys)) {
-            for (let i = 0; i < opt.dataKeys.length; i += 1) {
-              const key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
-              data[key] = convertedModel[key];
-            }
-          } else {
-            data = convertedModel;
-          }
-          request = consumer.patch(
-            helper.pathJoin(config.paths[path], id),
-            data,
-            config.headers || {}
-          );
-          if (opt.generateOnly) {
-            resolve({ requestURL: request.url });
-          } else {
-            request
-              .exec()
-              .then(response => {
-                resolve({ response, request: request.xhr });
-              })
-              .catch(response => {
-                reject({ response, request: request.xhr });
-              });
-          }
-        } else {
-          // otherwise put all fields
-          let data = {};
-          const convertedModel = objectToRestModel(this);
-          if (helper.isArray(opt.dataKeys)) {
-            for (let i = 0; i < opt.dataKeys.length; i += 1) {
-              const key = fields[opt.dataKeys[i]].map || opt.dataKeys[i];
-              data[key] = convertedModel[key];
-            }
-          } else {
-            data = convertedModel;
-          }
-          delete data[config.idField];
-          request = consumer.put(
-            helper.pathJoin(config.paths[path], id),
-            data,
-            config.headers || {}
-          );
-          if (opt.generateOnly) {
-            resolve({ requestURL: request.url });
-          } else {
-            request
-              .exec()
-              .then(response => {
-                resolve({ response, request: request.xhr });
-              })
-              .catch(response => {
-                reject({ response, request: request.xhr });
-              });
-          }
-        }
-      }
-    });
+    return RestBaseModel.save({ ...options, model: this });
   }
 
   static save(options) {
-    const config = this.prototype.getConfig();
     const opt = options || {};
+    if (!(opt.model instanceof this)) {
+      throw Error('model must be instance of RestBaseModel');
+    }
+    const id = opt.model[opt.model.getIdField()];
+    const config = opt.model.getConfig();
     const { fields } = config;
     const consumer = new RestClient(getConsumerOptions(opt, config));
     const path = opt.path || 'default';
 
-    if (!(opt.model instanceof this)) {
-      throw Error('model must be instance of RestBaseModel');
-    }
-    const id = opt.model[this.prototype.getIdField()];
-
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestClient) {
-        // if there is no id, then post and save it
         let request;
-        if (!id) {
-          request = consumer.post(
-            config.paths[path],
-            objectToRestModel(opt.model),
-            config.headers || {}
-          );
-          if (opt.generateOnly) {
-            resolve({ requestURL: request.url });
-          } else {
-            request
-              .exec()
-              .then(response => {
-                opt.model[config.idField] =
-                  response[config.fields[config.idField].map || config.idField];
-                resolve({ response, request: request.xhr });
-              })
-              .catch(response => {
-                reject({ response, request: request.xhr });
-              });
-          }
-        } else if (helper.isArray(opt.patch)) {
-          // if there is 'patch' attribute in option, only patch these fields
-          const patchData = {};
-          const convertedModel = objectToRestModel(opt.model);
-          for (let i = 0; i < opt.patch.length; i += 1) {
-            const key = fields[opt.patch[i]].map || opt.patch[i];
-            patchData[key] = convertedModel[key];
-          }
-          request = consumer.patch(
-            helper.pathJoin(config.paths[path], id),
-            patchData,
-            config.headers || {}
-          );
-          if (opt.generateOnly) {
-            resolve({ requestURL: request.url });
-          } else {
-            request
-              .exec()
-              .then(response => {
-                resolve({ response, request: request.xhr });
-              })
-              .catch(response => {
-                reject({ response, request: request.xhr });
-              });
-          }
+        const isPost = !id;
+        const isPatch = Array.isArray(opt.patch);
+        const isPut = !isPost && !isPatch;
+        const requestType = isPost ? 'post' : isPatch ? 'patch' : 'put';
+        const requestData = {};
+        const fieldKeys = opt.patch || Object.keys(opt.model);
+
+        for (let i = 0; i < fieldKeys.length; i += 1) {
+          const key = fieldKeys[i];
+          requestData[fields[key].map || key] = opt.model[key];
+        }
+        (isPost || isPut) && delete requestData[opt.model._idField];
+
+        request = consumer[requestType](
+          helper.pathJoin(config.paths[path], id),
+          requestData,
+          config.headers || {}
+        );
+        if (opt.generateOnly) {
+          resolve({ requestURL: request.url });
         } else {
-          // otherwise put all fields
-          const putData = {};
-          const fieldKeys = Object.keys(opt.model);
-          for (let i = 0; i < fieldKeys.length; i += 1) {
-            const key = fieldKeys[i];
-            putData[key] = opt.model[key];
-          }
-          delete putData[config.idField];
-          request = consumer.put(
-            helper.pathJoin(config.paths[path], id),
-            putData,
-            config.headers || {}
-          );
-          if (opt.generateOnly) {
-            resolve({ requestURL: request.url });
-          } else {
-            request
-              .exec()
-              .then(response => {
-                resolve({ response, request: request.xhr });
-              })
-              .catch(response => {
-                reject({ response, request: request.xhr });
-              });
-          }
+          request
+            .exec()
+            .then(response => {
+              if (isPost) {
+                opt.model[opt.model._idField] =
+                  response[
+                    (config.fields[opt.model._idField] || {}).map ||
+                      opt.model._idField
+                  ];
+              }
+              resolve({ response, request: request.xhr });
+            })
+            .catch(response => {
+              reject({ response, request: request.xhr });
+            });
         }
       }
     });
@@ -296,6 +159,7 @@ class RestBaseModel {
     const consumer = new RestClient(getConsumerOptions(opt, config));
     const path = opt.path || 'default';
     opt.pathData = opt.pathData || {};
+    opt.resultField = opt.resultField || config.resultField;
 
     return new Promise((resolve, reject) => {
       if (consumer instanceof RestClient) {
@@ -321,12 +185,16 @@ class RestBaseModel {
             .then(response => {
               let model;
               if (helper.isObject(response)) {
-                model = restModelToObject(
-                  opt.resultField && response[opt.resultField]
-                    ? response[opt.resultField]
-                    : response,
-                  this
-                );
+                if (helper.isFunction(opt.resultField)) {
+                  model = opt.resultField(response);
+                } else {
+                  model = restModelToObject(
+                    opt.resultField && response[opt.resultField]
+                      ? response[opt.resultField]
+                      : response,
+                    this
+                  );
+                }
               }
               resolve({ model, response, request: request.xhr });
             })
@@ -409,46 +277,17 @@ class RestBaseModel {
   }
 
   delete(options) {
-    const config = this.getConfig();
     const opt = options || {};
-    const id = opt.id || this[this.getIdField()];
-    const consumer = new RestClient(getConsumerOptions(opt, config));
-    const path = opt.path || 'default';
-
-    return new Promise((resolve, reject) => {
-      if (consumer instanceof RestClient) {
-        if (id) {
-          const request = consumer.delete(
-            helper.pathJoin(config.paths[path], id),
-            config.headers || {}
-          );
-          if (opt.generateOnly) {
-            resolve({ requestURL: request.url });
-          } else {
-            request
-              .exec()
-              .then(response => {
-                resolve({ response, request: request.xhr });
-              })
-              .catch(response => {
-                reject({ response, request: request.xhr });
-              });
-          }
-        } else {
-          reject(
-            new Error(
-              "id parameter must be provided in options or object's id field must be set before calling this method."
-            )
-          );
-        }
-      }
-    });
+    return RestBaseModel.delete({ ...opt, model: this });
   }
 
   static delete(options) {
-    const config = this.prototype.getConfig();
     const opt = options || {};
-    const { id } = opt;
+    if (!(opt.model instanceof this)) {
+      throw Error('model must be instance of RestBaseModel');
+    }
+    const config = opt.model.getConfig();
+    const id = opt.model[opt.model.getIdField()];
     const consumer = new RestClient(getConsumerOptions(opt, config));
     const path = opt.path || 'default';
 
@@ -457,6 +296,7 @@ class RestBaseModel {
         if (id) {
           const request = consumer.delete(
             helper.pathJoin(config.paths[path], id),
+            opt.data,
             config.headers || {}
           );
           if (opt.generateOnly) {
