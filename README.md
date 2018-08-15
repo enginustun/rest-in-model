@@ -70,11 +70,14 @@ settings.addApiPath([
 // set default api path uses that cases: if either not given default api path or desired to change default api path
 settings.setDefaultApiPath('api');
 ```
+
 ##### Set constant header configuration for each requests
 ``` javascript
-// set additional headers with setHeader method of RestBaseModel
-RestBaseModel.setHeader('Authorization', 'JWT xxxxxxxxxxxxxxxxxxxx...');
+// set common headers for all models with setHeader method of settings
+settings.setHeader('Authorization', 'JWT xxxxxxxxxxxxxxxxxxxx...');
 ```
+
+> You can add additional model-specific headers to each model in `getConfig` method while defining model config. See `User` model definition below: 
 
 ### Model Definition
 
@@ -86,6 +89,10 @@ import { RestBaseModel } from 'rest-in-model';
 class User extends RestBaseModel {
   getConfig() {
     return {
+      // you can add additional headers
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
       fields: {
         id: { primary: true },
         name: {},
@@ -153,9 +160,9 @@ const userInstance = new User();
 
 // all returns Promise
 userInstance.save(options);
-userInstance.delete(options);
-
 User.save(options);
+
+userInstance.delete(options);
 User.delete(options);
 
 User.get(options);
@@ -185,24 +192,6 @@ userInstance.save({ patch: ['name', 'lastname'] }); // userInstance.id !== undef
 ```
 
 ---
-**userInstance.delete(options);**
-
-`options: { id, path }`
-
-|Property|Description|Type|Default Value|
-|--------|-----------|----|--------|
-|id(optional)|optional id parameter of model will be deleted. if it is not provided, it will be got from model|`number\|string`|-|
-|path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
-
-``` javascript
-userInstance.delete(); // userInstance.id !== undefined
-// XHR finished loading: DELETE "https://jsonplaceholder.typicode.com/users/(:userId)"
-
-userInstance.delete({ id: 4 }); // userInstance.id doesn't matter
-// XHR finished loading: DELETE "https://jsonplaceholder.typicode.com/users/4"
-```
-
----
 **User.save(options);**
 
 `options: { model, path, patch }`
@@ -229,6 +218,24 @@ User.save({ model: userInstance }).then((response) => {
   // userInstance.id === id of saved record
 });
 // XHR finished loading: POST "https://jsonplaceholder.typicode.com/users"
+```
+
+---
+**userInstance.delete(options);**
+
+`options: { model, path }`
+
+|Property|Description|Type|Default Value|
+|--------|-----------|----|--------|
+|model(required)|instance of Model extended from RestBaseModel|`instance of RestBaseModel`|-|
+|path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
+
+``` javascript
+userInstance.delete(); // userInstance.id !== undefined
+// XHR finished loading: DELETE "https://jsonplaceholder.typicode.com/users/(:userId)"
+
+userInstance.delete({ id: 4 }); // userInstance.id doesn't matter
+// XHR finished loading: DELETE "https://jsonplaceholder.typicode.com/users/4"
 ```
 
 ---
