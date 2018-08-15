@@ -223,11 +223,10 @@ User.save({ model: userInstance }).then((response) => {
 ---
 **userInstance.delete(options);**
 
-`options: { model, path }`
+`options: { path }`
 
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
-|model(required)|instance of Model extended from RestBaseModel|`instance of RestBaseModel`|-|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
 
 ``` javascript
