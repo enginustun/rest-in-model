@@ -179,6 +179,7 @@ User.all(options);
 |--------|-----------|----|--------|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
 |patch(optional)|array of model fields that need to be updated with patch request|`string[]`|-|
+|generateOnly(optional)|if you want to generate only request url, use this property|`boolean`|`false`|
 
 ```javascript
 userInstance.save(); // userInstance.id === undefined
@@ -201,6 +202,7 @@ userInstance.save({ patch: ['name', 'lastname'] }); // userInstance.id !== undef
 |model(required)|instance of Model extended from RestBaseModel|`instance of RestBaseModel`|-|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
 |patch(optional)|array of model fields that need to be updated with patch request|`string[]`|-|
+|generateOnly(optional)|if you want to generate only request url, use this property|`boolean`|`false`|
 
 ``` javascript
 const userInstance = new User({
@@ -228,6 +230,7 @@ User.save({ model: userInstance }).then((response) => {
 |Property|Description|Type|Default Value|
 |--------|-----------|----|--------|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
+|generateOnly(optional)|if you want to generate only request url, use this property|`boolean`|`false`|
 
 ``` javascript
 userInstance.delete(); // userInstance.id !== undefined
@@ -246,6 +249,7 @@ userInstance.delete({ id: 4 }); // userInstance.id doesn't matter
 |--------|-----------|----|--------|
 |id(required)|required id parameter of model will be deleted. if it is not provided, there will be an error thrown|`number\|string`|-|
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
+|generateOnly(optional)|if you want to generate only request url, use this property|`boolean`|`false`|
 
 ``` javascript
 User.delete(); // throws an error
@@ -266,6 +270,7 @@ User.delete({ id: 4 });
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
 |pathData(optional)|object that contains values of variables in path specified|`object`|-|
 |queryParams(optional)|object that contains keys and values of query parameters|`object`|-|
+|generateOnly(optional)|if you want to generate only request url, use this property|`boolean`|`false`|
 
 ``` javascript
 User.get(); // throws an error
@@ -292,6 +297,7 @@ User.get({ id: 2 }).then(({ model, response }) => {
 |path(optional)|one of the path attribute name in paths object defined in model|`string`|default|
 |pathData(optional)|object that contains values of variables in path specified|`object`|-|
 |queryParams(optional)|object that contains keys and values of query parameters|`object`|-|
+|generateOnly(optional)|if you want to generate only request url, use this property|`boolean`|`false`|
 
 ``` javascript
 User.all().then(({ resultList, response }) => {
