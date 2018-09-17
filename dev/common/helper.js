@@ -60,7 +60,9 @@ module.exports = {
     let formData = new FormData();
     for (const key in object) {
       if (object.hasOwnProperty(key)) {
-        formData.append(key, object[key]);
+        if (object[key] !== undefined && object[key] !== null) {
+          formData.append(key, object[key]);
+        }
       }
     }
     return formData;
