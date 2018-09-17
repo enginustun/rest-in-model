@@ -32,7 +32,10 @@ module.exports = {
     let newurl = url;
     for (let i = 0; i < paramKeys.length; i += 1) {
       const paramKey = paramKeys[i];
-      newurl = newurl.replace(`{${paramKey}}`, paramValues[paramKey]);
+      newurl = newurl.replace(
+        `{${paramKey}}`,
+        encodeURIComponent(paramValues[paramKey])
+      );
     }
     return newurl;
   },
@@ -47,9 +50,11 @@ module.exports = {
           queryParams[paramKey] !== undefined &&
           queryParams[paramKey] !== null
         ) {
-          newurl += `${newurl.indexOf('?') === -1 ? '?' : ''}${paramKey}=${
-            queryParams[paramKey]
-          }${i < paramKeys.length - 1 ? '&' : ''}`;
+          newurl += `${
+            newurl.indexOf('?') === -1 ? '?' : ''
+          }${paramKey}=${encodeURIComponent(queryParams[paramKey])}${
+            i < paramKeys.length - 1 ? '&' : ''
+          }`;
         }
       }
     }
