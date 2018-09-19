@@ -127,7 +127,7 @@ class RestBaseModel {
       (isPost || isPut) && delete requestData[_idField];
 
       request = consumer[requestType](
-        helper.pathJoin(config.paths[path], id),
+        helper.pathJoin(config.paths[path], encodeURIComponent(id || '')),
         requestData,
         config.headers || {}
       );
@@ -294,7 +294,7 @@ class RestBaseModel {
     return new Promise((resolve, reject) => {
       if (id) {
         const request = consumer.delete(
-          helper.pathJoin(config.paths[path], id),
+          helper.pathJoin(config.paths[path], encodeURIComponent(id || '')),
           opt.data,
           config.headers || {}
         );
