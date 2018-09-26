@@ -127,7 +127,10 @@ class RestBaseModel {
       (isPost || isPut) && delete requestData[_idField];
 
       request = consumer[requestType](
-        helper.pathJoin(config.paths[path], encodeURIComponent(id || '')),
+        helper.replaceUrlParamsWithValues(
+          helper.pathJoin(config.paths[path], encodeURIComponent(id || '')),
+          opt.pathData
+        ),
         requestData,
         config.headers || {}
       );
