@@ -128,7 +128,9 @@ class RestBaseModel {
 
       request = consumer[requestType](
         helper.replaceUrlParamsWithValues(
-          helper.pathJoin(config.paths[path], encodeURIComponent(id || '')),
+          opt.disableAutoAppendedId
+            ? config.paths[path]
+            : helper.pathJoin(config.paths[path], encodeURIComponent(id || '')),
           opt.pathData
         ),
         requestData,
@@ -164,7 +166,7 @@ class RestBaseModel {
     return new Promise((resolve, reject) => {
       let resultPath = config.paths[path];
       const { id } = opt;
-      if (id) {
+      if (id && !opt.disableAutoAppendedId) {
         // if there is no pathData.id it should be set
         opt.pathData.id = opt.pathData.id || id;
         if (path === 'default') {
@@ -297,7 +299,15 @@ class RestBaseModel {
     return new Promise((resolve, reject) => {
       if (id) {
         const request = consumer.delete(
-          helper.pathJoin(config.paths[path], encodeURIComponent(id || '')),
+          helper.replaceUrlParamsWithValues(
+            opt.disableAutoAppendedId
+              ? config.paths[path]
+              : helper.pathJoin(
+                  config.paths[path],
+                  encodeURIComponent(id || '')
+                ),
+            opt.pathData
+          ),
           opt.data,
           config.headers || {}
         );
