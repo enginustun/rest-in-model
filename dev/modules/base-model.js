@@ -278,7 +278,7 @@ class RestBaseModel {
     const opt = options || {};
     const { prototype } = this.constructor;
     const _idField = prototype.getIdField();
-    const id = this[_idField];
+    const id = opt.id || this[_idField];
     return this.constructor.delete({ ...opt, id });
   }
 
@@ -287,17 +287,12 @@ class RestBaseModel {
     const { prototype } = this;
     const config = prototype.getConfig();
     const { id } = opt;
-    if (!id) {
-      throw Error(
-        `id must be provided correctly in parameter object. provided id: ${id}`
-      );
-    }
 
     const consumer = new RestClient(getConsumerOptions(opt, config));
     const path = opt.path || 'default';
 
     return new Promise((resolve, reject) => {
-      if (id) {
+      try {
         const request = consumer.delete(
           helper.replaceUrlParamsWithValues(
             opt.disableAutoAppendedId
@@ -323,12 +318,8 @@ class RestBaseModel {
               reject({ response, request: request.xhr });
             });
         }
-      } else {
-        reject(
-          new Error(
-            "id parameter must be provided in options or object's id field must be set before calling this method."
-          )
-        );
+      } catch (error) {
+        reject(error);
       }
     });
   }
