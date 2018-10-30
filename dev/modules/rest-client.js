@@ -42,15 +42,11 @@ class RestClient {
   }
 
   sendRequest({ method = 'GET', service, data = null, headers = {} }) {
-    if (
-      !headers['Content-Type'] &&
-      !headers['content-Type'] &&
-      !headers['content-type'] &&
-      !headers['contentType']
-    ) {
-      headers['Content-Type'] = settings.headers.contentType;
-    }
     const request = new XHR();
+    headers = {
+      ...settings.headers,
+      ...headers
+    }
     setHeaders(request, headers);
     request.method = method;
     request.url = helper.pathJoin(

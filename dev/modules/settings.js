@@ -7,7 +7,7 @@ const settings = {
   defaultApiPath: '',
   headers: {
     accept: 'application/json',
-    contentType: 'application/json',
+    'Content-Type': 'application/json',
   },
   setHeader: (key, value) => {
     settings.headers[key] = value;
