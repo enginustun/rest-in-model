@@ -13,5 +13,7 @@ const settings = {
     settings.headers[key] = value;
   },
   modelHeaders: {},
+  beforeEveryRequest: () => {},
+  afterEveryRequest: () => {},
 };
 module.exports = settings;

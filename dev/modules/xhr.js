@@ -1,3 +1,9 @@
+import settings from './settings';
+
+const isValid = value => {
+  return value || value === undefined;
+};
+
 class XHR {
   constructor() {
     this.xhr = new XMLHttpRequest();
@@ -12,7 +18,7 @@ class XHR {
     this.headers[name] = value;
   }
 
-  exec() {
+  exec({ beforeRequest = () => {}, afterRequest = () => {} } = {}) {
     return new Promise((resolve, reject) => {
       this.xhr.open(this.method, this.url, this.async);
       const headerKeys = Object.keys(this.headers);
@@ -21,6 +27,8 @@ class XHR {
       }
       this.xhr.onreadystatechange = () => {
         if (this.xhr.readyState === 4) {
+          settings.afterEveryRequest(this.xhr);
+          afterRequest(this.xhr);
           if (this.xhr.status >= 200 && this.xhr.status < 300) {
             let data = this.xhr.responseText;
             const contentType = (
@@ -42,7 +50,9 @@ class XHR {
           }
         }
       };
-      this.xhr.send(this.data);
+      isValid(settings.beforeEveryRequest(this.xhr)) &&
+        isValid(beforeRequest(this.xhr)) &&
+        this.xhr.send(this.data);
     });
   }
 }

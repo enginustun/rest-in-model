@@ -140,7 +140,7 @@ class RestBaseModel {
         resolve({ requestURL: request.url });
       } else {
         request
-          .exec()
+          .exec(opt)
           .then(response => {
             if (isPost) {
               opt.model[_idField] =
@@ -183,7 +183,7 @@ class RestBaseModel {
         resolve({ requestURL: request.url });
       } else {
         request
-          .exec()
+          .exec(opt)
           .then(response => {
             let model;
             if (helper.isObject(response)) {
@@ -230,7 +230,7 @@ class RestBaseModel {
         resolve({ requestURL: request.url });
       } else {
         request
-          .exec()
+          .exec(opt)
           .then(response => {
             if (!helper.isArray(opt.resultList)) {
               opt.resultList = [];
@@ -310,7 +310,7 @@ class RestBaseModel {
           resolve({ requestURL: request.url });
         } else {
           request
-            .exec()
+            .exec(opt)
             .then(response => {
               resolve({ response, request: request.xhr });
             })
