@@ -33,6 +33,7 @@ module.exports = {
           'Endpoint provided is not valid or its format is wrong. Correct format is { name = "", value = "" }.'
         );
       }
+      console.log(JSON.stringify("SETTINGSSSSS ",endpoint, settings))
     },
     addApiPath: apiPath => {
       if (helper.isObject(apiPath) && apiPath.name && apiPath.value) {

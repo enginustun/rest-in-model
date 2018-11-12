@@ -209,8 +209,12 @@ class RestBaseModel {
 
   static all(options) {
     const config = this.prototype.getConfig();
+    console.log("CONFIG ALL ",JSON.stringify(config))
     const opt = options || {};
-    const consumer = new RestClient(getConsumerOptions(opt, config));
+    console.log("OPT ALL ",JSON.stringify(opt))
+    const optsss = getConsumerOptions(opt, config);
+    console.log("optsss ALL ",JSON.stringify(optsss))
+    const consumer = new RestClient(optsss);
     const path = opt.path || 'default';
     opt.pathData = opt.pathData || {};
     opt.resultListField = opt.resultListField || config.resultListField;

@@ -36,6 +36,7 @@ class RestClient {
     if (helper.isObject(_settings)) {
       this.settings.endpoint =
         settings.endpoints[_settings.endpointName || settings.defaultEndpoint];
+        console.log(JSON.stringify(settings.endpoints), JSON.stringify(_settings.endpointName), JSON.stringify(settings.defaultEndpoint), JSON.stringify(settings.endpoints[_settings.endpointName || settings.defaultEndpoint]) )
       this.settings.apiPath =
         settings.apiPaths[_settings.apiPathName || settings.defaultApiPath];
     }
