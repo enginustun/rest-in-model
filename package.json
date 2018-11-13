@@ -42,7 +42,7 @@
     "@babel/plugin-syntax-import-meta": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "babel-loader": "^8.0.0",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^7.0.0-beta.3",
     "eslint": "^4.16.0",
     "eslint-plugin-import": "^2.8.0",
     "webpack": "^4.16.5",
