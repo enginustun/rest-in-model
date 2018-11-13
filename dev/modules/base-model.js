@@ -133,7 +133,7 @@ class RestBaseModel {
             : helper.pathJoin(config.paths[path], encodeURIComponent(id || '')),
           opt.pathData
         ),
-        requestData,
+        opt.data || requestData,
         config.headers || {}
       );
       if (opt.generateOnly) {
