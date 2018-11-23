@@ -1,18 +1,37 @@
 import RestClient from './rest-client';
 import helper from '../common/helper';
 
-const restModelToObject = (restModel, Type) => {
-  const newObject = new Type();
+const restModelToObject = function(...[restModel, Type, ...args]) {
+  const newObject = new Type(...args);
   const config = newObject.getConfig();
   if (helper.isObject(config.fields)) {
     const fieldKeys = Object.keys(config.fields);
+    const serializers = {};
     for (let i = 0; i < fieldKeys.length; i += 1) {
       const fieldKey = fieldKeys[i];
-      if (restModel[config.fields[fieldKey].map || fieldKey] !== undefined) {
-        newObject[fieldKey] =
-          restModel[config.fields[fieldKey].map || fieldKey];
+      if (helper.isFunction(config.fields[fieldKey].serializer)) {
+        serializers[fieldKey] = config.fields[fieldKey].serializer;
+      } else if (
+        restModel[config.fields[fieldKey].map || fieldKey] !== undefined
+      ) {
+        if (
+          config.fields[fieldKey].modelClass &&
+          config.fields[fieldKey].modelClass.prototype instanceof RestBaseModel
+        ) {
+          newObject[fieldKey] = restModelToObject(
+            restModel[config.fields[fieldKey].map || fieldKey],
+            config.fields[fieldKey].modelClass,
+            ...args
+          );
+        } else {
+          newObject[fieldKey] =
+            restModel[config.fields[fieldKey].map || fieldKey];
+        }
       }
     }
+    Object.entries(serializers).forEach(([fieldKey, serializer]) => {
+      newObject[fieldKey] = serializer(restModel);
+    });
   }
   return newObject;
 };
@@ -194,7 +213,8 @@ class RestBaseModel {
                   opt.resultField && response[opt.resultField]
                     ? response[opt.resultField]
                     : response,
-                  this
+                  this,
+                  ...(opt.constructorArgs || [])
                 );
               }
             }
@@ -254,9 +274,11 @@ class RestBaseModel {
                     restModelToObject(
                       item,
                       opt.resultListItemType &&
-                      opt.resultListItemType.prototype instanceof RestBaseModel
+                        opt.resultListItemType.prototype instanceof
+                          RestBaseModel
                         ? opt.resultListItemType
-                        : this
+                        : this,
+                      ...(opt.constructorArgs || [])
                     )
                   );
               }
