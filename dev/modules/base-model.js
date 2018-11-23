@@ -1,85 +1,51 @@
 import RestClient from './rest-client';
 import helper from '../common/helper';
 
-const restModelToObject = function(...[restModel, Type, ...args]) {
-  const newObject = new Type(...args);
-  const config = newObject.getConfig();
-  if (helper.isObject(config.fields)) {
-    const fieldKeys = Object.keys(config.fields);
-    const serializers = {};
-    for (let i = 0; i < fieldKeys.length; i += 1) {
-      const fieldKey = fieldKeys[i];
-      if (helper.isFunction(config.fields[fieldKey].serializer)) {
-        serializers[fieldKey] = config.fields[fieldKey].serializer;
-      } else if (
-        restModel[config.fields[fieldKey].map || fieldKey] !== undefined
-      ) {
-        if (
-          config.fields[fieldKey].modelClass &&
-          config.fields[fieldKey].modelClass.prototype instanceof RestBaseModel
-        ) {
-          newObject[fieldKey] = restModelToObject(
-            restModel[config.fields[fieldKey].map || fieldKey],
-            config.fields[fieldKey].modelClass,
-            ...args
-          );
-        } else {
-          newObject[fieldKey] =
-            restModel[config.fields[fieldKey].map || fieldKey];
-        }
-      }
-    }
-    Object.entries(serializers).forEach(([fieldKey, serializer]) => {
-      newObject[fieldKey] = serializer(restModel);
-    });
-  }
-  return newObject;
-};
-
-const objectToRestModel = model => {
-  const restModel = {};
-  const config = model.getConfig();
-  const fieldKeys = Object.keys(model);
-  for (let i = 0; i < fieldKeys.length; i += 1) {
-    const fieldKey = fieldKeys[i];
-    restModel[config.fields[fieldKey].map || fieldKey] = model[fieldKey];
-  }
-  return restModel;
-};
-
 const getConsumerOptions = (opt, config) => ({
   endpointName: opt.endpointName || config.endpointName,
   apiPathName: opt.apiPathName || config.apiPathName,
 });
 
 class RestBaseModel {
-  constructor(_model) {
+  constructor(...[_model, ...args]) {
     const model = _model || {};
     const { constructor } = this;
     const config = this.getConfig();
     const { fields } = config;
 
-    Object.keys(fields).map(fieldKey => {
-      if (model[fields[fieldKey].map] === undefined) {
-        this[fieldKey] = model[fieldKey];
-      } else {
-        this[fieldKey] = model[fields[fieldKey].map];
-      }
-
-      if (this[fieldKey] === undefined && fields[fieldKey]) {
-        if (helper.isArray(fields[fieldKey].default)) {
-          this[fieldKey] = [];
-        } else if (helper.isObject(fields[fieldKey].default)) {
-          this[fieldKey] = {};
-        } else if (fields[fieldKey].default !== undefined) {
-          this[fieldKey] = fields[fieldKey].default;
+    if (helper.isObject(fields)) {
+      const fieldKeys = Object.keys(fields);
+      const serializers = {};
+      for (let i = 0; i < fieldKeys.length; i += 1) {
+        const fieldKey = fieldKeys[i];
+        if (helper.isFunction(fields[fieldKey].serializer)) {
+          serializers[fieldKey] = fields[fieldKey].serializer;
+        } else {
+          const ModelClass = fields[fieldKey].modelClass;
+          const fieldValue =
+            model[fields[fieldKey].map] === undefined
+              ? model[fieldKey]
+              : model[fields[fieldKey].map];
+          if (ModelClass && ModelClass.prototype instanceof RestBaseModel) {
+            this[fieldKey] = new ModelClass(fieldValue, ...args);
+          } else {
+            this[fieldKey] = fieldValue;
+          }
+          if (this[fieldKey] === undefined && fields[fieldKey]) {
+            if (helper.isArray(fields[fieldKey].default)) {
+              this[fieldKey] = [];
+            } else if (helper.isObject(fields[fieldKey].default)) {
+              this[fieldKey] = {};
+            } else if (fields[fieldKey].default !== undefined) {
+              this[fieldKey] = fields[fieldKey].default;
+            }
+          }
         }
       }
-
-      if (this[fieldKey] === undefined) {
-        this[fieldKey] = null;
-      }
-    });
+      Object.entries(serializers).forEach(([fieldKey, serializer]) => {
+        this[fieldKey] = serializer(...args);
+      });
+    }
 
     // define REST consumer
     if (!constructor.consumer) {
@@ -209,11 +175,10 @@ class RestBaseModel {
               if (helper.isFunction(opt.resultField)) {
                 model = opt.resultField(response);
               } else {
-                model = restModelToObject(
+                model = new this(
                   opt.resultField && response[opt.resultField]
                     ? response[opt.resultField]
                     : response,
-                  this,
                   ...(opt.constructorArgs || [])
                 );
               }
@@ -269,17 +234,14 @@ class RestBaseModel {
             if (helper.isArray(list)) {
               for (let i = 0; i < list.length; i += 1) {
                 const item = list[i];
+                const ClassName =
+                  opt.resultListItemType &&
+                  opt.resultListItemType.prototype instanceof RestBaseModel
+                    ? opt.resultListItemType
+                    : this;
                 helper.isObject(item) &&
                   opt.resultList.push(
-                    restModelToObject(
-                      item,
-                      opt.resultListItemType &&
-                        opt.resultListItemType.prototype instanceof
-                          RestBaseModel
-                        ? opt.resultListItemType
-                        : this,
-                      ...(opt.constructorArgs || [])
-                    )
+                    new ClassName(item, ...(opt.constructorArgs || []))
                   );
               }
             }
