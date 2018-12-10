@@ -30,17 +30,21 @@ class XHR {
           settings.afterEveryRequest(this.xhr);
           afterRequest(this.xhr);
           if (this.xhr.status >= 200 && this.xhr.status < 300) {
-            let data = this.xhr.responseText;
-            const contentType = (
-              this.xhr.getResponseHeader('Content-Type') || ''
-            ).toLowerCase();
-            if (
-              this.xhr.responseText &&
-              contentType.includes('application/json')
-            ) {
-              data = JSON.parse(this.xhr.responseText);
+            try {
+              const responseType = this.xhr.responseType.toLowerCase();
+              let data = this.xhr.response;
+              if (['', 'text'].includes(responseType)) {
+                const contentType = (
+                  this.xhr.getResponseHeader('Content-Type') || ''
+                ).toLowerCase();
+                if (data && contentType.includes('application/json')) {
+                  data = JSON.parse(this.xhr.responseText);
+                }
+              }
+              resolve(data);
+            } catch (error) {
+              reject(error);
             }
-            resolve(data);
           } else {
             try {
               reject(JSON.parse(this.xhr.responseText || this.xhr.statusText));
