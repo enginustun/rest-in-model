@@ -82,11 +82,14 @@ const settings = {
       );
     }
   },
+  setTimeout: duration => {
+    _settings.timeout = duration;
+  },
   setHeader: _settings.setHeader,
-  set beforeEveryRequest(func = () => {}) {
+  set beforeEveryRequest(func = helper.defaultFunction) {
     _settings.beforeEveryRequest = func;
   },
-  set afterEveryRequest(func = () => {}) {
+  set afterEveryRequest(func = helper.defaultFunction) {
     _settings.afterEveryRequest = func;
   },
 };

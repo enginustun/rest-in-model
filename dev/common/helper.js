@@ -6,6 +6,8 @@ module.exports = {
   isFunction: val =>
     Object.prototype.toString.call(val) === '[object Function]',
 
+  defaultFunction: () => {},
+
   pathJoin: (...paths) => {
     const pathArray = Array.prototype.slice.call(paths);
     let resultPath = '';
