@@ -92,6 +92,25 @@ const settings = {
   set afterEveryRequest(func = helper.defaultFunction) {
     _settings.afterEveryRequest = func;
   },
+  set: (configs = {}) => {
+    configs.endpoints && settings.addEndpoint(configs.endpoints);
+    configs.apiPaths && settings.addApiPath(configs.apiPaths);
+    configs.defaultEndpoint &&
+      settings.setDefaultEndpoint(configs.defaultEndpoint);
+    configs.defaultApiPath &&
+      settings.setDefaultApiPath(configs.defaultApiPath);
+    configs.timeout && settings.setTimeout(configs.timeout);
+    helper.isObject(configs.headers) &&
+      Object.entries(configs.headers).map(config =>
+        settings.setHeader(config[0], config[1])
+      );
+    if (configs.beforeEveryRequest) {
+      settings.beforeEveryRequest = beforeEveryRequest;
+    }
+    if (configs.afterEveryRequest) {
+      settings.afterEveryRequest = afterEveryRequest;
+    }
+  },
 };
 
 export { RestClient, RestBaseModel, settings };
