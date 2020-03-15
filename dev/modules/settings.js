@@ -1,4 +1,5 @@
 const settings = {
+  timeout: 0,
   endpoints: {},
   defaultEndpoint: '',
   apiPaths: {

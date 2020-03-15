@@ -7,6 +7,7 @@ const isValid = value => {
 class XHR {
   constructor() {
     this.xhr = new XMLHttpRequest();
+    this.xhr.timeout = settings.timeout;
     this.method = 'GET';
     this.async = true;
     this.url = '';
